@@ -161,24 +161,24 @@ def main(logfilename=None):
                     continue
                 else:
                     raise
-	    for File in r:
-		if File == 0:
-		    first_user_input = 1
-		    from_user = os.read(0, bufsize)
-		    os.write(fd, from_user)
-		    logger.input_from_user(from_user)
-
-		elif File == fd:
-		    try:
-			from_shell = os.read(fd, bufsize)
-			os.write(1, from_shell)
-			logger.input_from_shell(from_shell)
-			if from_shell=='':
-			    exit = 1
-		    except OSError:
-			# On Linux, os.read throws an OSError
-			# when data is done
-			exit = 1
+            for File in r:
+                if File == 0:
+                    first_user_input = 1
+                    from_user = os.read(0, bufsize)
+                    os.write(fd, from_user)
+                    logger.input_from_user(from_user)
+                
+                elif File == fd:
+                    try:
+                        from_shell = os.read(fd, bufsize)
+                        os.write(1, from_shell)
+                        logger.input_from_shell(from_shell)
+                        if from_shell=='':
+                            exit = 1
+                    except OSError:
+                    # On Linux, os.read throws an OSError
+                    # when data is done
+                        exit = 1
 
             if exit==1:
                 break
@@ -186,8 +186,8 @@ def main(logfilename=None):
         logger.done()
 
     except:
-            input.restore()
-            raise
+        input.restore()
+        raise
     input.restore()
     print "ShellLogger data stored in " + logfilename
 
@@ -211,8 +211,7 @@ class Logger:
         # Characters emitted when the user hits backspace.
         # This will probably vary from terminal to terminal, and
         # this list should grow is new terminals are encountered.
-	self.BACKSPACES = ['\x08\x1b[K',
-			   '\x08 \x08']
+        self.BACKSPACES = ['\x08\x1b[K', '\x08 \x08']
 
         
 

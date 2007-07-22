@@ -2,6 +2,10 @@
 ShellLogger: Logs shell commands and timestamps
 ===============================================
 
+:Author: Lorin Hochstein
+:Version: $Revision$
+
+
 Introduction
 ============
 ShellLogger captures all user interactions with a shell. It is intended to be used for software engineering researchers who are interested in inferring programmer behavior from data that can be captured automatically during a programming session. It is similar to the Unix "script" program, with the following additional features:

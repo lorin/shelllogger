@@ -2,10 +2,6 @@
 ShellLogger: Logs shell commands and timestamps
 ===============================================
 
-:Author: Lorin Hochstein
-:Version: $Revision$
-
-
 Introduction
 ============
 ShellLogger captures all user interactions with a shell. It is intended to be used for software engineering researchers who are interested in inferring programmer behavior from data that can be captured automatically during a programming session. It is similar to the Unix "script" program, with the following additional features:
@@ -21,7 +17,6 @@ ShellLogger captures all user interactions with a shell. It is intended to be us
 Contact
 =======
 For questions about ShellLogger, please contact Lorin Hochstein: lorin@cse.unl.edu. 
-
 
 Prerequisites
 =============
@@ -53,6 +48,67 @@ log of the data named `<logfilename>` will be generated in the directory where
 ShellLogger was invoked. If no logfile is specified, it will default to
 ``~/.shelllogger/log.<tstamp>.xml`` where `<tstamp>` is the UTC timestamp when
 the shelllogger session was started. 
+
+Program output
+==============
+The output of ShellLogger looks like the following:
+
+<cli-logger>
+
+<cli-logger-entry>
+<invocation time="1185080805.408457"
+current-directory="/Users/lorinh/shelllogger"
+machine="Bender.local">
+pwd
+</invocation>
+<result time="1185080805.408832">
+/Users/lorinh/shelllogger
+</result>
+</cli-logger-entry>
+
+<cli-logger-entry>
+<invocation time="1185080806.856568"
+current-directory="/Users/lorinh/shelllogger"
+machine="Bender.local">
+ls
+</invocation>
+<result time="1185080806.862642">
+cli.py      package     readme.html readme.txt
+</result>
+</cli-logger-entry>
+
+<cli-logger-entry>
+<invocation time="1185080808.744830"
+current-directory="/Users/lorinh/shelllogger"
+machine="Bender.local">
+cd package
+</invocation>
+<result time="1185080808.745676"></result>
+</cli-logger-entry>
+
+<cli-logger-entry>
+<invocation time="1185080812.328699"
+current-directory="/Users/lorinh/shelllogger/package"
+machine="Bender.local">
+cat README
+</invocation>
+<result time="1185080812.334055">
+This directory contains the script for packaging up ShellLogger for distribution.
+</result>
+</cli-logger-entry>
+
+<cli-logger-entry>
+<invocation time="1185080813.616734"
+current-directory="/Users/lorinh/shelllogger/package"
+machine="Bender.local">
+exit
+</invocation>
+<result time="1185080813.617144">
+exit
+</result>
+</cli-logger-entry>
+</cli-logger>
+
 
 Specifying programs where output should not be captured
 =======================================================

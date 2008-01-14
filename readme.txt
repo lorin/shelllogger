@@ -29,9 +29,9 @@ Installation
 
 (Optionally:)
 
-2. Modify the appropriate startup settings file (e.g. .profile, .cshrc) to invoke ShellLogger on startup, e.g.::
+2. Modify the appropriate startup settings file (e.g. .profile, .cshrc) to invoke ShellLogger on startup, by adding it to the *end* of the file, e.g.::
 
- 	python /path/to/cli.py
+ 	python /Users/lorin/scripts/cli.py
 
 If you want to avoid requiring the user to type "exit" twice to logout (once to exit ShellLogger, and again to exit the parent shell), you can add the following code::
 
@@ -46,14 +46,33 @@ If you want to avoid requiring the user to type "exit" twice to logout (once to 
 		exit
 	endif
 		
+Make sure you get this part right. If the "exit" is unconditionally executed in this file, the poor user will log out automatically as soon as they log in!
+
 
 3. If you want to change the location where ShellLogger puts files (default is ``~/.shelllogger`` directory), define and export a `SHELLLOGGERDIR` environment variable::
 
 	# in bash
-	export SHELLLOGGERDIR='/tmp'
+	export SHELLLOGGERDIR='/Users/lorin/mydata/shelllogger'
 
 	# in tcsh
-	setenv SHELLLOGGERDIR '/tmp'
+	setenv SHELLLOGGERDIR '/Users/lorin/mydata/shelllogger'
+
+Putting it all together, your bash .profile would end with::
+
+	export SHELLLOGGERDIR='/Users/lorin/mydata/shelllogger'
+	python /Users/lorin/scripts/cli.py
+	if [ -z "$ShellLogger" ]
+	   then
+	   exit
+	fi
+
+Your tcsh .cshrc would then end with::
+
+	setenv SHELLLOGGERDIR '/Users/lorin/mydata/shelllogger'
+	python /Users/lorin/scripts/cli.py
+	if !($?ShellLogger) then
+		exit
+	endif
 
 
 Using ShellLogger
@@ -70,63 +89,63 @@ the shelllogger session was started.
 
 Program output
 ==============
-The output of ShellLogger looks like the following:
+The output of ShellLogger looks like the following::
 
-<cli-logger>
-
-<cli-logger-entry>
-<invocation time="1185080805.408457"
-current-directory="/Users/lorinh/shelllogger"
-machine="Bender.local">
-pwd
-</invocation>
-<result time="1185080805.408832">
-/Users/lorinh/shelllogger
-</result>
-</cli-logger-entry>
-
-<cli-logger-entry>
-<invocation time="1185080806.856568"
-current-directory="/Users/lorinh/shelllogger"
-machine="Bender.local">
-ls
-</invocation>
-<result time="1185080806.862642">
-cli.py      package     readme.html readme.txt
-</result>
-</cli-logger-entry>
-
-<cli-logger-entry>
-<invocation time="1185080808.744830"
-current-directory="/Users/lorinh/shelllogger"
-machine="Bender.local">
-cd package
-</invocation>
-<result time="1185080808.745676"></result>
-</cli-logger-entry>
-
-<cli-logger-entry>
-<invocation time="1185080812.328699"
-current-directory="/Users/lorinh/shelllogger/package"
-machine="Bender.local">
-cat README
-</invocation>
-<result time="1185080812.334055">
-This directory contains the script for packaging up ShellLogger for distribution.
-</result>
-</cli-logger-entry>
-
-<cli-logger-entry>
-<invocation time="1185080813.616734"
-current-directory="/Users/lorinh/shelllogger/package"
-machine="Bender.local">
-exit
-</invocation>
-<result time="1185080813.617144">
-exit
-</result>
-</cli-logger-entry>
-</cli-logger>
+	<cli-logger>
+	
+	<cli-logger-entry>
+	<invocation time="1185080805.408457"
+	current-directory="/Users/lorinh/shelllogger"
+	machine="Bender.local">
+	pwd
+	</invocation>
+	<result time="1185080805.408832">
+	/Users/lorinh/shelllogger
+	</result>
+	</cli-logger-entry>
+	
+	<cli-logger-entry>
+	<invocation time="1185080806.856568"
+	current-directory="/Users/lorinh/shelllogger"
+	machine="Bender.local">
+	ls
+	</invocation>
+	<result time="1185080806.862642">
+	cli.py      package     readme.html readme.txt
+	</result>
+	</cli-logger-entry>
+	
+	<cli-logger-entry>
+	<invocation time="1185080808.744830"
+	current-directory="/Users/lorinh/shelllogger"
+	machine="Bender.local">
+	cd package
+	</invocation>
+	<result time="1185080808.745676"></result>
+	</cli-logger-entry>
+	
+	<cli-logger-entry>
+	<invocation time="1185080812.328699"
+	current-directory="/Users/lorinh/shelllogger/package"
+	machine="Bender.local">
+	cat README
+	</invocation>
+	<result time="1185080812.334055">
+	This directory contains the script for packaging up ShellLogger for distribution.
+	</result>
+	</cli-logger-entry>
+	
+	<cli-logger-entry>
+	<invocation time="1185080813.616734"
+	current-directory="/Users/lorinh/shelllogger/package"
+	machine="Bender.local">
+	exit
+	</invocation>
+	<result time="1185080813.617144">
+	exit
+	</result>
+	</cli-logger-entry>
+	</cli-logger>
 
 
 Specifying programs where output should not be captured

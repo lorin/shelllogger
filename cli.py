@@ -216,15 +216,9 @@ class Logger:
         self.buffer = ''
         self.cwd = os.getcwd()
         self.state = BeginState(self)
-        # Regex filter. This is a nightmare because I can't
-        # use raw strings, because I need to use escape sequences.
-        self.filter = re.compile('''(
-        \x07              |   # bell
-        \x1b\\[H\x1b\\[2J |   # clear screen
-        \x1b\\[m          |   # color
-        \x1b\\[\\d\\dm    |   # color
-        \x1b\\[\\d\\d;\\d\\dm # color
-        )''',re.X)
+        # Regex filter to capture all escape sequences.
+        # From: http://mail.python.org/pipermail/python-list/2006-October/410295.html
+        self.filter = re.compile(r'\x1b\[\d*(;\d*)*[A-Za-z]')
 
         # Characters emitted when the user hits backspace.
         # This will probably vary from terminal to terminal, and

@@ -11,8 +11,7 @@
 # If no logfilename is specified, commands are logged to
 #  .shelllogger/log.<tstamp>.xml 
 #
-# The script currently depends upon the following prompts being set by the user
-# in .bashrc and .cshrc, respectively
+# The script will automatically change the prompt upon startup to one of the following:
 #
 # bash prompt: PS1='[\w]$ '
 # tcsh prompt: set prompt='[%~]$ '
@@ -46,7 +45,9 @@ except NameError:
 # it is better to not capture their output
 TERMINAL_APPS = ['vi','vim','emacs','pico','nano','joe']
 
-   
+BASH_PROMPT = "PS1='[\w]$ '"
+TCSH_PROMPT = "set prompt='[%~]$ '"
+SHELL_PROMPTS = {'bash':BASH_PROMPT,'tcsh':TCSH_PROMPT}
 
 class TTY:
     def __init__(self):
@@ -87,16 +88,20 @@ class ChildWindowResizer:
         fcntl.ioctl(self.child_fd,termios.TIOCSWINSZ,x)
 
 
+def get_shell():
+  return os.path.basename(os.environ['SHELL'])
+
 def run_shell():
     """Launch the appropriate shell.
 
     It will be either bash or tcsh depending on what the user is currently running.
     It checks the SHELL variable to figure it out.
     """
-    shell = os.path.basename(os.environ['SHELL'])
+    shell = get_shell()
     if shell not in ['bash','tcsh']:
         raise ValueError, "Unsupported shell (only works with bash and tcsh)"
     os.execvp(shell,(shell,))
+    
     
 
 def main(logfilename=None):
@@ -147,6 +152,10 @@ def main(logfilename=None):
 
     try:
         logger = Logger(logfilename)
+
+        # Set the shell prompt properly
+        os.write(fd,SHELL_PROMPTS[get_shell()])
+        os.write(fd,'\n')
 
         while True:
             delay = 1           

@@ -26,16 +26,6 @@ Installation
 ============
 1. Copy `cli.py` to a location in your PATH. 
 
-2. Modify your default prompt (necessary for ShellLogger to work correctly).
-
-If using tcsh, add the following to your `.cshrc` file::
-
- set prompt='[%~]$ '
-
-If using bash, add the following to your `.bashrc` file::
-
- PS1='[\w]$ '
-
 
 Using ShellLogger
 =================

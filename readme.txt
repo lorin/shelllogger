@@ -33,13 +33,26 @@ Installation
 
  	python /path/to/cli.py
 
-3. If you want to change the location where ShellLogger puts files (default is ``~/.shelllogger`` directory), define and export a `SHELLLOGGERDIR` environment variable. 
-For example, in a bash .profile file::
+If you want to avoid requiring the user to type "exit" twice to logout (once to exit ShellLogger, and again to exit the parent shell), you can add the following code::
 
+	# in bash
+	if [ -z "$ShellLogger" ]
+	   then
+	   exit
+	fi
+	
+	# in tcsh
+	if !($?ShellLogger) then
+		exit
+	endif
+		
+
+3. If you want to change the location where ShellLogger puts files (default is ``~/.shelllogger`` directory), define and export a `SHELLLOGGERDIR` environment variable::
+
+	# in bash
 	export SHELLLOGGERDIR='/tmp'
 
-In a tcsh .cshrc file::
-
+	# in tcsh
 	setenv SHELLLOGGERDIR '/tmp'
 
 

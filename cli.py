@@ -1,25 +1,28 @@
 #!/usr/bin/env python
-#
-# ShellLogger: Unix shell command invocation logger
-#
-# Usage: cli.py <logfilename>
-#
-#
-# Upon invocation, it will spawn a new shell (either tcsh or bash, depending upon
-# SHELL variable).
-#
-# If no logfilename is specified, commands are logged to
-#  .shelllogger/log.<tstamp>.xml 
-#
-# The script will automatically change the prompt upon startup to one of the following:
-#
-# bash prompt: PS1='[\w]$ '
-# tcsh prompt: set prompt='[%~]$ '
-#
-# Much code borrowed from
-# http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
-#
-# 
+"""
+ShellLogger: Unix shell command invocation logger
+
+Usage: cli.py <logfilename>
+
+
+Upon invocation, it will spawn a new shell (either tcsh or bash, depending upon
+SHELL variable).
+
+Directory can be specified by setting (and exporting) the SHELLLOGGERDIR 
+environment variable to a directory which will contain the XML logfiles.
+
+If no logfilename is specified, commands are logged to
+ .shelllogger/log.<tstamp>.xml 
+
+The script will automatically change the prompt upon startup to one of the following:
+
+bash prompt: PS1='[\w]$ '
+tcsh prompt: set prompt='[%~]$ '
+
+Much code borrowed from
+http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
+"""
+
 
 import fcntl
 import sys
@@ -102,26 +105,32 @@ def run_shell():
         raise ValueError, "Unsupported shell (only works with bash and tcsh)"
     os.execvp(shell,(shell,"-l"))
     
+def get_log_dir():
+    """Retrieve the name of the directory that will store the logfiles.
     
+    If the SHELLLOGGERDIR environment variable is set, use that.
+    Otherwise, default to ~/.shelllogger"""
+    env_var = "SHELLLOGGERDIR"
+    if os.environ.has_key(env_var):
+        return os.environ[env_var]
+    else:
+        return os.path.expanduser('~/.shelllogger')
 
 def main(logfilename=None):
     # Check for recursive call
     env_var = 'ShellLogger'
     if os.environ.has_key(env_var):
         # Recursive call, just exit
-        return
+        return 
 
     os.environ[env_var]='1'
     print "ShellLogger enabled"
 
     if logfilename is None:
-        # Default: .shelllogger/log.<tstamp>.lxml
-
-        # Try to create the .shelllogger directory
-        dirname = os.path.expanduser('~/.shelllogger')
+        dirname = get_log_dir()
         try:
             os.mkdir(dirname)
-            print "Creating ~/.shelllogger directory for storing logfile"
+            print "Creating %s directory for storing logfile" % dirname
         except OSError, e:
             # If it's anything but "File exists",then we're in trouble.
             # We'll just re-raise the exception for now

@@ -24,7 +24,23 @@ ShellLogger requires Python 2.1 or higher. It works with either bash or tcsh.
 
 Installation
 ============
-1. Copy `cli.py` to a location in your PATH. 
+
+1. Copy `cli.py` to an accessible location (that's it!)
+
+(Optionally:)
+
+2. Modify the appropriate startup settings file (e.g. .profile, .cshrc) to invoke ShellLogger on startup, e.g.::
+
+ 	python /path/to/cli.py
+
+3. If you want to change the location where ShellLogger puts files (default is ``~/.shelllogger`` directory), define and export a `SHELLLOGGERDIR` environment variable. 
+For example, in a bash .profile file::
+
+	export SHELLLOGGERDIR='/tmp'
+
+In a tcsh .cshrc file::
+
+	setenv SHELLLOGGERDIR '/tmp'
 
 
 Using ShellLogger

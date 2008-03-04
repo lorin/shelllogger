@@ -222,7 +222,7 @@ class Logger:
 
         # Characters emitted when the user hits backspace.
         # This will probably vary from terminal to terminal, and
-        # this list should grow is new terminals are encountered.
+        # this list should grow as new terminals are encountered.
         self.BACKSPACES = ['\x08\x1b[K', '\x08 \x08']
 
         

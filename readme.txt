@@ -25,7 +25,7 @@ ShellLogger requires Python 2.1 or higher. It works with either bash or tcsh.
 Installation
 ============
 
-1. Copy `cli.py` to an accessible location (that's it!)
+1. python setup.py install (you need root access for this)
 
 (Optionally:)
 

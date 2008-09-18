@@ -16,7 +16,7 @@ ShellLogger captures all user interactions with a shell. It is intended to be us
 
 Contact
 =======
-For questions about ShellLogger, please contact Lorin Hochstein: lorin@cse.unl.edu. 
+For questions about ShellLogger, please contact Lorin Hochstein: lorinh@gmail.com. 
 
 Prerequisites
 =============

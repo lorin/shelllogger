@@ -31,7 +31,7 @@ Installation
 
 2. Modify the appropriate startup settings file (e.g. .profile, .cshrc) to invoke ShellLogger on startup, by adding it to the *end* of the file, e.g.::
 
- 	python /Users/lorin/scripts/cli.py
+ 	python /usr/local/bin/shelllogger
 
 If you want to avoid requiring the user to type "exit" twice to logout (once to exit ShellLogger, and again to exit the parent shell), you can add the following code::
 
@@ -60,7 +60,7 @@ Make sure you get this part right. If the "exit" is unconditionally executed in 
 Putting it all together, your bash .profile would end with::
 
 	export SHELLLOGGERDIR='/Users/lorin/mydata/shelllogger'
-	python /Users/lorin/scripts/cli.py
+	python /Users/lorin/scripts/shelllogger
 	if [ -z "$ShellLogger" ]
 	   then
 	   exit
@@ -69,7 +69,7 @@ Putting it all together, your bash .profile would end with::
 Your tcsh .cshrc would then end with::
 
 	setenv SHELLLOGGERDIR '/Users/lorin/mydata/shelllogger'
-	python /Users/lorin/scripts/cli.py
+	python /Users/lorin/scripts/shelllogger
 	if !($?ShellLogger) then
 		exit
 	endif
@@ -79,7 +79,7 @@ Using ShellLogger
 =================
 Usage::
 
-  [~]$ cli.py <logfilename>
+  [~]$ shelllogger <logfilename>
 
 ShellLogger will begin logging until you exit the shell. Upon exit, a
 log of the data named `<logfilename>` will be generated in the directory where
@@ -111,7 +111,7 @@ The output of ShellLogger looks like the following::
 	ls
 	</invocation>
 	<result time="1185080806.862642">
-	cli.py      package     readme.html readme.txt
+	shelllogger      package     readme.html readme.txt
 	</result>
 	</cli-logger-entry>
 	
@@ -150,7 +150,7 @@ The output of ShellLogger looks like the following::
 
 Specifying programs where output should not be captured
 =======================================================
-Most likely, you will not want to capture the output of terminal-based programs, such as Emacs or vi. If you plan to use such a program, and don't want its output captured, specify the program in the TERMINAL_APPS variable defined in `cli.py`.
+Most likely, you will not want to capture the output of terminal-based programs, such as Emacs or vi. If you plan to use such a program, and don't want its output captured, specify the program in the TERMINAL_APPS variable defined in `shelllogger`.
 
 Known bugs
 ==========

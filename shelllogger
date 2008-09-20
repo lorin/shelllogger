@@ -2,7 +2,7 @@
 """
 ShellLogger: Unix shell command invocation logger
 
-Usage: cli.py <logfilename>
+Usage: shelllogger <logfilename>
 
 
 Upon invocation, it will spawn a new shell (either tcsh or bash, depending upon

@@ -228,7 +228,7 @@ class Logger:
         
 
     def done(self):
-        self.logfile.write("</result>\n</cli-logger-entry>\n</cli-logger>\n")
+        self.logfile.write("]]></result>\n</cli-logger-entry>\n</cli-logger>\n")
         self.logfile.close()
 
     def input_from_shell(self,buf):
@@ -351,7 +351,7 @@ class WaitingForShellState:
             return
         else:
             self.seen_shell_input = True
-            self.logger.write('<result time="%f">\n' % time.time())
+            self.logger.write('<result time="%f"><![CDATA[\n' % time.time())
             self.write_output_to_log(buf)
 
     def write_output_to_log(self,buf):
@@ -394,7 +394,7 @@ class ShellOutputState:
             # It's the prompt!
             self.saw_prompt = True
             self.logger.cwd = os.path.expanduser(m.group(1))
-            self.logger.write("</result>\n</cli-logger-entry>\n\n")
+            self.logger.write("]]></result>\n</cli-logger-entry>\n\n")
         else:
             self.write_output_to_log(buf)
 

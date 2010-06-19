@@ -99,9 +99,9 @@ The output of ShellLogger looks like the following::
 	machine="Bender.local">
 	pwd
 	</invocation>
-	<result time="1185080805.408832">
+	<result time="1185080805.408832"><![CDATA[
 	/Users/lorinh/shelllogger
-	</result>
+	]]></result>
 	</cli-logger-entry>
 	
 	<cli-logger-entry>
@@ -110,9 +110,9 @@ The output of ShellLogger looks like the following::
 	machine="Bender.local">
 	ls
 	</invocation>
-	<result time="1185080806.862642">
+	<result time="1185080806.862642"><![CDATA[
 	shelllogger      package     readme.html readme.txt
-	</result>
+	]]></result>
 	</cli-logger-entry>
 	
 	<cli-logger-entry>
@@ -130,9 +130,9 @@ The output of ShellLogger looks like the following::
 	machine="Bender.local">
 	cat README
 	</invocation>
-	<result time="1185080812.334055">
+	<result time="1185080812.334055"><![CDATA[
 	This directory contains the script for packaging up ShellLogger for distribution.
-	</result>
+	]]></result>
 	</cli-logger-entry>
 	
 	<cli-logger-entry>
@@ -141,9 +141,9 @@ The output of ShellLogger looks like the following::
 	machine="Bender.local">
 	exit
 	</invocation>
-	<result time="1185080813.617144">
+	<result time="1185080813.617144"><![CDATA[
 	exit
-	</result>
+	]]></result>
 	</cli-logger-entry>
 	</cli-logger>
 

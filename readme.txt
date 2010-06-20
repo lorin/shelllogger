@@ -96,9 +96,9 @@ The output of ShellLogger looks like the following::
 	<cli-logger-entry>
 	<invocation time="1185080805.408457"
 	current-directory="/Users/lorinh/shelllogger"
-	machine="Bender.local">
+	machine="Bender.local"><![CDATA[
 	pwd
-	</invocation>
+	]]></invocation>
 	<result time="1185080805.408832"><![CDATA[
 	/Users/lorinh/shelllogger
 	]]></result>
@@ -107,9 +107,9 @@ The output of ShellLogger looks like the following::
 	<cli-logger-entry>
 	<invocation time="1185080806.856568"
 	current-directory="/Users/lorinh/shelllogger"
-	machine="Bender.local">
+	machine="Bender.local"><![CDATA[
 	ls
-	</invocation>
+	]]></invocation>
 	<result time="1185080806.862642"><![CDATA[
 	shelllogger      package     readme.html readme.txt
 	]]></result>
@@ -118,18 +118,18 @@ The output of ShellLogger looks like the following::
 	<cli-logger-entry>
 	<invocation time="1185080808.744830"
 	current-directory="/Users/lorinh/shelllogger"
-	machine="Bender.local">
+	machine="Bender.local"><![CDATA[
 	cd package
-	</invocation>
+	]]></invocation>
 	<result time="1185080808.745676"></result>
 	</cli-logger-entry>
 	
 	<cli-logger-entry>
 	<invocation time="1185080812.328699"
 	current-directory="/Users/lorinh/shelllogger/package"
-	machine="Bender.local">
+	machine="Bender.local"><![CDATA[
 	cat README
-	</invocation>
+	]]></invocation>
 	<result time="1185080812.334055"><![CDATA[
 	This directory contains the script for packaging up ShellLogger for distribution.
 	]]></result>
@@ -138,9 +138,9 @@ The output of ShellLogger looks like the following::
 	<cli-logger-entry>
 	<invocation time="1185080813.616734"
 	current-directory="/Users/lorinh/shelllogger/package"
-	machine="Bender.local">
+	machine="Bender.local"><![CDATA[
 	exit
-	</invocation>
+	]]></invocation>
 	<result time="1185080813.617144"><![CDATA[
 	exit
 	]]></result>

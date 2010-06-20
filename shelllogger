@@ -312,10 +312,10 @@ class UserTypingState:
             self.logger.write('''<cli-logger-entry>
 <invocation time="%f"
 current-directory="%s"
-machine="%s">\n''' % (time.time(),self.logger.cwd,socket.gethostname()))
+machine="%s"><![CDATA[\n''' % (time.time(),self.logger.cwd,socket.gethostname()))
             self.logger.write_filtered(self.logger.buffer)
             self.logger.write('\n')
-            self.logger.write('</invocation>\n')
+            self.logger.write(']]></invocation>\n')
         else:
             self.logger.buffer += buf
     

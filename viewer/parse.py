@@ -9,7 +9,7 @@ import sys
 import time
 def main(fname):
 	print "<html>"
-	print "<script type='text/javascript' src='http://code.google.com/p/shelllogger/source/browse/trunk/viewer/toggleIt.js'></script>"
+	print "<script type='text/javascript' src='http://shelllogger.googlecode.com/svn/trunk/viewer/toggleIt.js'></script>"
 	tree = ET.parse(fname)
 	root = tree.getroot()
 	usertime = None

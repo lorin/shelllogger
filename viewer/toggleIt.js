@@ -1,3 +1,6 @@
+// Created by Jeremy Archuleta
+// Department of Computer Science at Virginia Tech
+// Email: jsarch@vt.edu
 function toggleIt( whichLayer )
 {
   var elem, vis;

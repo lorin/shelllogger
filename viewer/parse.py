@@ -37,9 +37,9 @@ def main(fname):
 					print "<pre>" + node.text + "</pre><br>"
 				print time.ctime(float(timestamp)) 
 				print "</tt>"
-			print "</div>";
-		print "</div>";
+			print "</div>"
+		print "</div>"
 	print "</html>"
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+	main(sys.argv[1])

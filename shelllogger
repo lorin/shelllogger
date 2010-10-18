@@ -16,8 +16,8 @@ If no logfilename is specified, commands are logged to
 
 The script will automatically change the prompt upon startup to one of the following:
 
-bash prompt: PS1='[\w]$ '
-tcsh prompt: set prompt='[%~]$ '
+bash prompt: PS1='[SL \w]$ '
+tcsh prompt: set prompt='[SL %~]$ '
 
 Much code borrowed from
 http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
@@ -48,17 +48,17 @@ except NameError:
 # it is better to not capture their output
 TERMINAL_APPS = ['vi','vim','emacs','pico','nano','joe']
 
-BASH_PROMPT = "PS1='[\w]$ '"
-TCSH_PROMPT = "set prompt='[%~]$ '"
+BASH_PROMPT = "PS1='[SL \w]$ '"
+TCSH_PROMPT = "set prompt='[SL %~]$ '"
 SHELL_PROMPTS = {'bash':BASH_PROMPT,'tcsh':TCSH_PROMPT}
 
 
 def sanitize(buf, 
-             BACKSPACES=['\x08\x1b[K', '\x08 \x08'], 
+             backspaces=['\x08\x1b[K', '\x08 \x08'], 
              escape_regex=re.compile(r'\x1b(\[|\]|\(|\))[;?0-9]*[0-9A-Za-z](.*\x07)?')):
     """Filter control characters out of a buffer, given a list of backspaces, and a regex of escape sequences.
     
-    BACKSPACES are characters emitted when the user hits backspace. 
+    backspaces are characters emitted when the user hits backspace. 
     This will probably vary from terminal to terminal, and
     this list should grow as new terminals are encountered.
     
@@ -68,11 +68,11 @@ def sanitize(buf,
     # Filter out control characters
 
     # First, handle the backspaces.
-    for BACKSPACE in BACKSPACES:
+    for backspace in backspaces:
         try:
             while True:
-                ind = buf.index(BACKSPACE) 
-                buf = ''.join((buf[0:ind-1],buf[ind+len(BACKSPACE):]))
+                ind = buf.index(backspace) 
+                buf = ''.join((buf[0:ind-1],buf[ind+len(backspace):]))
         except:
             pass
     

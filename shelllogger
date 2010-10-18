@@ -52,6 +52,23 @@ BASH_PROMPT = "PS1='[\w]$ '"
 TCSH_PROMPT = "set prompt='[%~]$ '"
 SHELL_PROMPTS = {'bash':BASH_PROMPT,'tcsh':TCSH_PROMPT}
 
+
+def sanitize(buf, BACKSPACES, escape_regex):
+    """Filter control characters out of a buffer, given a list of backspaces, and a regex of escape sequences"""
+    # Filter out control characters
+
+    # First, handle the backspaces.
+    for BACKSPACE in BACKSPACES:
+        try:
+            while True:
+                ind = buf.index(BACKSPACE) 
+                buf = ''.join((buf[0:ind-1],buf[ind+len(BACKSPACE):]))
+        except:
+            pass
+    
+    return escape_regex.sub('',buf)
+
+
 class TTY:
     def __init__(self):
         self.iflag, self.oflag, self.cflag, self.lflag, \
@@ -247,7 +264,7 @@ class Logger:
         xmlfilename = self.logfilename.replace('.raw','.xml')
         fout = open(xmlfilename, 'w')
         for line in open(self.logfilename):
-            fout.write(self.sanitize(line))
+            fout.write(sanitize(line, self.BACKSPACES, self.escape_regex))
             
         fout.close()
         return xmlfilename
@@ -265,19 +282,6 @@ class Logger:
     def write(self,buf):
         self.logfile.write(buf)
 
-    def sanitize(self,buf):
-        # Filter out control characters
-
-        # First, handle the backspaces.
-        for BACKSPACE in self.BACKSPACES:
-            try:
-                while True:
-                    ind = buf.index(BACKSPACE) 
-                    buf = ''.join((buf[0:ind-1],buf[ind+len(BACKSPACE):]))
-            except:
-                pass
-        
-        return self.escape_regex.sub('',buf)
 
 
 # regex for matching the prompt

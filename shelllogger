@@ -137,7 +137,7 @@ def main(logfilename=None):
             if e.errno != errno.EEXIST:
                 raise e
 
-        logfilename = os.path.join(dirname,'log.%d.xml' % time.time())
+        logfilename = os.path.join(dirname,'log.%d.raw' % time.time())
 
     pid, fd = pty.fork()
     

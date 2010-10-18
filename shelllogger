@@ -212,7 +212,8 @@ def main(logfilename=None):
 class Logger:
     def __init__(self,logfilename):
         self.logfile = open(logfilename,'w')
-        self.logfile.write("<cli-logger>\n\n")
+        self.logfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        self.logfile.write("<cli-logger>\n")
         self.buffer = ''
         self.cwd = os.getcwd()
         self.state = BeginState(self)
@@ -313,7 +314,7 @@ class UserTypingState:
 <invocation time="%f"
 current-directory="%s"
 machine="%s"><![CDATA[\n''' % (time.time(),self.logger.cwd,socket.gethostname()))
-            self.logger.write_filtered(self.logger.buffer)
+            self.logger.write(self.logger.buffer)
             self.logger.write('\n')
             self.logger.write(']]></invocation>\n')
         else:
@@ -355,7 +356,7 @@ class WaitingForShellState:
             self.write_output_to_log(buf)
 
     def write_output_to_log(self,buf):
-        self.logger.write_filtered(buf)
+        self.logger.write(buf)
         
     def input_from_user(self,buf):
         pass
@@ -399,7 +400,7 @@ class ShellOutputState:
             self.write_output_to_log(buf)
 
     def write_output_to_log(self,buf):
-        self.logger.write_filtered(buf)
+        self.logger.write(buf)
 
     def input_from_user(self,buf):
         pass

@@ -2,8 +2,7 @@
 """
 ShellLogger: Unix shell command invocation logger
 
-Usage: shelllogger <logfilename>
-
+Usage: shelllogger [-s, --sanitize rawfilename] <logfilename>
 
 Upon invocation, it will spawn a new shell (either tcsh or bash, depending upon
 SHELL variable).
@@ -18,6 +17,9 @@ The script will automatically change the prompt upon startup to one of the follo
 
 bash prompt: PS1='[SL \w]$ '
 tcsh prompt: set prompt='[SL %~]$ '
+
+If called with the -s option, it will parse <logfilename> as if it was a raw file and
+remove all escape characters, printing to standard out. 
 
 Much code borrowed from
 http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
@@ -36,6 +38,8 @@ import struct
 import termios
 import time
 import errno
+
+from optparse import OptionParser
 
 
 # Fix for older versions of Python
@@ -443,11 +447,27 @@ class ShellOutputState:
 class ShellOutputNoOutputState(ShellOutputState):
     def write_output_to_log(self,buf):
         pass
-    
-        
 
+
+
+def sanitize_file(fname):
+    """Strip all control characters and non-UTF-8 characters from a file.
+    
+    Prints the output to standard out"""
+    for line in open(fname):
+        sys.stdout.write(sanitize(line))
+    
 if __name__ == '__main__':
-    if len(sys.argv)==1:
-        main()
+    parser = OptionParser()
+    parser.add_option("-s", "--sanitize", dest="sanitize_file",
+                      help="sanitize an existing raw logfile")
+    (options, args) = parser.parse_args()
+    
+    if options.sanitize_file is None:        
+        if len(args)==0:
+            main()
+        else:
+            main(args[0]) 
     else:
-        main(sys.argv[1]) 
+        sanitize_file(options.sanitize_file)
+

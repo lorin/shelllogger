@@ -38,6 +38,8 @@ import struct
 import termios
 import time
 import errno
+import codecs
+
 
 from optparse import OptionParser
 
@@ -79,8 +81,13 @@ def sanitize(buf,
                 buf = ''.join((buf[0:ind-1],buf[ind+len(backspace):]))
         except:
             pass
+            
+    strip_escapes = escape_regex.sub('',buf)
     
-    return escape_regex.sub('',buf)
+    # strip non-ascii
+    allowed_chars = [ord('\r'),ord('\n'),ord('\t')] + range(32,127)
+    clean = ''.join([x for x in strip_escapes if ord(x) in allowed_chars])
+    return clean
 
 
 class TTY:
@@ -269,7 +276,7 @@ class Logger:
         Returns the name of the XML file
         """
         xmlfilename = self.logfilename.replace('.raw','.xml')
-        fout = open(xmlfilename, 'w')
+        fout = codecs.open(xmlfilename, encoding="utf-8", mode="w")
         for line in open(self.logfilename):
             fout.write(sanitize(line))
             

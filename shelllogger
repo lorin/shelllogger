@@ -246,18 +246,8 @@ class Logger:
         """
         xmlfilename = self.logfilename.replace('.raw','.xml')
         fout = open(xmlfilename, 'w')
-        for buf in open(self.logfilename):
-            # For now, this is just a copy of write_filtered, it should really be cleaner
-            
-            # First, handle the backspaces
-            for BACKSPACE in self.BACKSPACES:
-                try:
-                    while True:
-                        ind = buf.index(BACKSPACE) 
-                        buf = ''.join((buf[0:ind-1],buf[ind+len(BACKSPACE):]))
-                except:
-                    pass
-            fout.write(self.escape_regex.sub('',buf))
+        for line in open(self.logfilename):
+            fout.write(self.sanitize(line))
             
         fout.close()
         return xmlfilename
@@ -275,8 +265,8 @@ class Logger:
     def write(self,buf):
         self.logfile.write(buf)
 
-    def write_filtered(self,buf):
-        # Write to file, filtering out control characters
+    def sanitize(self,buf):
+        # Filter out control characters
 
         # First, handle the backspaces.
         for BACKSPACE in self.BACKSPACES:
@@ -287,7 +277,7 @@ class Logger:
             except:
                 pass
         
-        self.logfile.write(self.escape_regex.sub('',buf))
+        return self.escape_regex.sub('',buf)
 
 
 # regex for matching the prompt

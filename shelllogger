@@ -201,16 +201,17 @@ def main(logfilename=None):
             if exit==1:
                 break
 
-        logger.done()
+        xmlfilename = logger.done()
 
     except:
         input.restore()
         raise
     input.restore()
-    print "ShellLogger data stored in " + logfilename
+    print "ShellLogger data stored in " + xmlfilename
 
 class Logger:
     def __init__(self,logfilename):
+        self.logfilename = logfilename
         self.logfile = open(logfilename,'w')
         self.logfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         self.logfile.write("<cli-logger>\n")
@@ -229,8 +230,39 @@ class Logger:
         
 
     def done(self):
+        """Call when session is complete.
+        
+        Returns the name of the XML file
+        
+        """
         self.logfile.write("]]></result>\n</cli-logger-entry>\n</cli-logger>\n")
         self.logfile.close()
+        return self.raw_to_xml()
+        
+    def raw_to_xml(self):
+        """Convert the .raw file, with illegal characters and escape keys, to a proper XML version.
+        
+        Returns the name of the XML file
+        """
+        xmlfilename = self.logfilename.replace('.raw','.xml')
+        fout = open(xmlfilename, 'w')
+        for buf in open(self.logfilename):
+            # For now, this is just a copy of write_filtered, it should really be cleaner
+            
+            # First, handle the backspaces
+            for BACKSPACE in self.BACKSPACES:
+                try:
+                    while True:
+                        ind = buf.index(BACKSPACE) 
+                        buf = ''.join((buf[0:ind-1],buf[ind+len(BACKSPACE):]))
+                except:
+                    pass
+            fout.write(self.filter.sub('',buf))
+            
+        fout.close()
+        return xmlfilename
+        
+        
 
     def input_from_shell(self,buf):
         self.state.input_from_shell(buf)

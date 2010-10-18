@@ -220,7 +220,7 @@ class Logger:
         self.state = BeginState(self)
         # Regex filter to capture all escape sequences.
         # Modified from: http://wiki.tcl.tk/9673
-        self.filter = re.compile(r'\x1b(\[|\]|\(|\))[;?0-9]*[0-9A-Za-z](.*\x07)?')
+        self.escape_regex = re.compile(r'\x1b(\[|\]|\(|\))[;?0-9]*[0-9A-Za-z](.*\x07)?')
 
         # Characters emitted when the user hits backspace.
         # This will probably vary from terminal to terminal, and
@@ -257,7 +257,7 @@ class Logger:
                         buf = ''.join((buf[0:ind-1],buf[ind+len(BACKSPACE):]))
                 except:
                     pass
-            fout.write(self.filter.sub('',buf))
+            fout.write(self.escape_regex.sub('',buf))
             
         fout.close()
         return xmlfilename
@@ -287,7 +287,7 @@ class Logger:
             except:
                 pass
         
-        self.logfile.write(self.filter.sub('',buf))
+        self.logfile.write(self.escape_regex.sub('',buf))
 
 
 # regex for matching the prompt

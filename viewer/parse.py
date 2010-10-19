@@ -57,6 +57,12 @@ function hide( whichLayer )
 //JSARCH
 '''
 
+def format_time(timestamp):
+    """Takes a timestamp float and produces the time string"""
+    fmt = "%m/%d/%Y %H:%M:%S"
+    return time.strftime(fmt, time.localtime(timestamp))
+
+
 def main(fname):
 	print "<html>"
 	print "<script type='text/javascript'>"
@@ -76,7 +82,7 @@ def main(fname):
 				timestamp = node.get("time")
 				machine = node.get("machine")
 				dir = node.get("current-directory")
-				usertime = time.ctime(float(timestamp))
+				usertime = format_time(float(timestamp))
 				userinput = node.text 
 			else:
 				print "<tt>"
@@ -87,7 +93,7 @@ def main(fname):
 				timestamp = node.get("time")
 				if node.text:
 					print "<pre>" + node.text + "</pre><br>"
-				print time.ctime(float(timestamp)) 
+				print format_time(float(timestamp)) 
 				print "</tt>"
 			print "</div>"
 		print "</div>"

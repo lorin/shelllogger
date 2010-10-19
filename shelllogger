@@ -2,7 +2,7 @@
 """
 ShellLogger: Unix shell command invocation logger
 
-Usage: shelllogger [-s, --sanitize rawfilename] <logfilename>
+Usage: shelllogger [-s, --sanitize outfilename] <logfilename>
 
 Upon invocation, it will spawn a new shell (either tcsh or bash, depending upon
 SHELL variable).
@@ -262,7 +262,7 @@ class Logger:
         self.logfilename = logfilename
         self.logfile = open(logfilename,'w')
         self.logfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-        self.logfile.write("<cli-logger>\n")
+        self.logfile.write('<cli-logger machine="%s">\n\n' % socket.gethostname())
         self.buffer = ''
         self.cwd = os.getcwd()
         self.state = BeginState(self)
@@ -362,8 +362,7 @@ class UserTypingState:
             self.program_invoked = self.logger.buffer.split()[0]
             self.logger.write('''<cli-logger-entry>
 <invocation time="%f"
-current-directory="%s"
-machine="%s"><![CDATA[\n''' % (time.time(),self.logger.cwd,socket.gethostname()))
+current-directory="%s"><![CDATA[\n''' % (time.time(),self.logger.cwd))
             self.logger.write(self.logger.buffer)
             self.logger.write('\n')
             self.logger.write(']]></invocation>\n')
@@ -467,17 +466,18 @@ class ShellOutputNoOutputState(ShellOutputState):
 
 
 
-def sanitize_file(fname):
+def sanitize_file(infilename, outfilename):
     """Strip all control characters and non-UTF-8 characters from a file.
     
     Prints the output to standard out"""
-    for line in open(fname):
-        sys.stdout.write(sanitize(line))
+    fout = codecs.open(outfilename, encoding="utf-8", mode="w")
+    for line in codecs.open(infilename, encoding="utf-8"):
+        fout.write(sanitize(line))
     
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-s", "--sanitize", dest="sanitize_file",
-                      help="sanitize an existing raw logfile")
+                      help="sanitize an existing logfile to the specified outputfile")
     (options, args) = parser.parse_args()
     
     if options.sanitize_file is None:        
@@ -486,5 +486,8 @@ if __name__ == '__main__':
         else:
             main(args[0]) 
     else:
-        sanitize_file(options.sanitize_file)
+        if len(args)==0:
+            raise ValueError, "Must specify both an input file and an output file when sanitizing"
+        else:
+            sanitize_file(infilename=args[0],outfilename=options.sanitize_file)
 

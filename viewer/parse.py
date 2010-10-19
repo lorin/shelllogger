@@ -7,9 +7,61 @@ import xml.etree.ElementTree as ET
 
 import sys
 import time
+
+toggleIt = '''
+// Created by Jeremy Archuleta
+// Department of Computer Science at Virginia Tech
+// Email: jsarch@vt.edu
+function toggleIt( whichLayer )
+{
+  var elem, vis;
+  if( document.getElementById ) // this is the way the standards work
+    elem = document.getElementById( whichLayer );
+  else if( document.all ) // this is the way old msie versions work
+      elem = document.all[whichLayer];
+  else if( document.layers ) // this is the way nn4 works
+    elem = document.layers[whichLayer];
+  vis = elem.style;
+  // if the style.display value is blank we try to figure it out here
+  if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
+    vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
+  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
+}
+
+//JSARCH
+function show( whichLayer )
+{
+  var elem, vis;
+  if( document.getElementById ) // this is the way the standards work
+    elem = document.getElementById( whichLayer );
+  else if( document.all ) // this is the way old msie versions work
+      elem = document.all[whichLayer];
+  else if( document.layers ) // this is the way nn4 works
+    elem = document.layers[whichLayer];
+  vis = elem.style;
+  vis.display = 'inline';
+}
+
+function hide( whichLayer )
+{
+  var elem, vis;
+  if( document.getElementById ) // this is the way the standards work
+    elem = document.getElementById( whichLayer );
+  else if( document.all ) // this is the way old msie versions work
+      elem = document.all[whichLayer];
+  else if( document.layers ) // this is the way nn4 works
+    elem = document.layers[whichLayer];
+  vis = elem.style;
+  vis.display = 'none';
+}
+//JSARCH
+'''
+
 def main(fname):
 	print "<html>"
-	print "<script type='text/javascript' src='http://shelllogger.googlecode.com/svn/trunk/viewer/toggleIt.js'></script>"
+	print "<script type='text/javascript'>"
+	print toggleIt
+	print"</script>"
 	tree = ET.parse(fname)
 	root = tree.getroot()
 	usertime = None
@@ -43,3 +95,4 @@ def main(fname):
 
 if __name__ == '__main__':
 	main(sys.argv[1])
+

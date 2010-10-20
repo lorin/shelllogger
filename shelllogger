@@ -39,7 +39,7 @@ import termios
 import time
 import errno
 import codecs
-
+import datetime
 
 from optparse import OptionParser
 
@@ -164,7 +164,7 @@ def get_log_dir():
     else:
         return os.path.expanduser('~/.shelllogger')
 
-def main(logfilename=None):
+def main(logfilename=None, debug=False):
     # Check for recursive call
     env_var = 'ShellLogger'
     if os.environ.has_key(env_var):
@@ -186,6 +186,10 @@ def main(logfilename=None):
                 raise e
 
         logfilename = os.path.join(dirname,'log.%d.raw' % time.time())
+        if debug:
+            debugfilename = os.path.join(dirname,'log.%d.debug' % time.time())
+        else:
+            debugfilename = None
 
     pid, fd = pty.fork()
     
@@ -208,7 +212,7 @@ def main(logfilename=None):
     bufsize = 1024
 
     try:
-        logger = Logger(logfilename)
+        logger = Logger(logfilename, debugfilename)
 
         # Set the shell prompt properly
         os.write(fd,SHELL_PROMPTS[get_shell()])
@@ -258,7 +262,7 @@ def main(logfilename=None):
     print "ShellLogger data stored in " + xmlfilename
 
 class Logger:
-    def __init__(self,logfilename):
+    def __init__(self,logfilename, debugfilename):
         self.logfilename = logfilename
         self.logfile = open(logfilename,'w')
         self.logfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
@@ -266,9 +270,12 @@ class Logger:
         self.buffer = ''
         self.cwd = os.getcwd()
         self.state = BeginState(self)
+        self.debugfilename = debugfilename
+        if self.debugfilename is not None:
+            self.debugfile = open(debugfilename, 'w')
+        else:
+            self.debugfile = None
 
-
-        
 
     def done(self):
         """Call when session is complete.
@@ -296,6 +303,8 @@ class Logger:
         
 
     def input_from_shell(self,buf):
+        if self.debugfile:
+            self.debug_log(buf)
         self.state.input_from_shell(buf)
         self.state = self.state.next_state()
 
@@ -305,8 +314,14 @@ class Logger:
 
     def write(self,buf):
         self.logfile.write(buf)
-
-
+        
+    def debug_log(self, buf):
+        """Record to the debug log"""
+        self.debugfile.write(datetime.datetime.now().strftime("%H:%M:%S "))
+        self.debugfile.write("<")
+        self.debugfile.write(buf)
+        self.debugfile.write(">\n")
+        
 
 # regex for matching the prompt
 # this is used to identify the data directory
@@ -362,9 +377,8 @@ class UserTypingState:
             self.program_invoked = self.logger.buffer.split()[0]
             self.logger.write('''<cli-logger-entry>
 <invocation time="%f"
-current-directory="%s"><![CDATA[\n''' % (time.time(),self.logger.cwd))
+current-directory="%s"><![CDATA[''' % (time.time(),self.logger.cwd))
             self.logger.write(self.logger.buffer)
-            self.logger.write('\n')
             self.logger.write(']]></invocation>\n')
         else:
             self.logger.buffer += buf
@@ -478,13 +492,14 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-s", "--sanitize", dest="sanitize_file",
                       help="sanitize an existing logfile to the specified outputfile")
+    parser.add_option("-d", "--debug", action="store_true", dest="debug", help="enable debug logging")
     (options, args) = parser.parse_args()
     
     if options.sanitize_file is None:        
         if len(args)==0:
-            main()
+            main(logfilename=None, debug=options.debug)
         else:
-            main(args[0]) 
+            main(logfilename=args[0],debug=options.debug) 
     else:
         if len(args)==0:
             raise ValueError, "Must specify both an input file and an output file when sanitizing"

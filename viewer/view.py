@@ -112,7 +112,7 @@ def main(fname):
 		first = True
 		for node in child.getchildren():
 			if node.tag == "invocation":
-				print "<div>"
+				print "\t<div>"
 				timestamp = node.get("time")
 				machine = node.get("machine")
 				dir = node.get("current-directory")
@@ -122,17 +122,17 @@ def main(fname):
 				    userinput = clean_first_entry(userinput)
 				    first = False
 			else:
-				print "<tt>"
+				print "\t<tt>"
 				print usertime + "[<a href='javascript:toggleIt(" + timestamp + ");'>+</a>]" + userinput
-				print "</tt>"
-				print "<div id=" + timestamp +" style='display: none'>"
-				print "<tt>"
+				print "\t</tt>"
+				print "\t<div id=" + timestamp +" style='display: none'>"
+				print "\t\t<tt>"
 				timestamp = node.get("time")
 				if node.text:
 					print "<pre>" + node.text + "</pre><br>"
 				print format_time(float(timestamp)) 
-				print "</tt>"
-			print "</div>"
+				print "\t\t</tt>"
+			print "\t</div>"
 		print "</div>"
 	print "</body>"
 	print "</html>"

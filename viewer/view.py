@@ -106,7 +106,6 @@ def main(fname):
 	usertime = None
 	userinput = None
 	for child in root.getchildren():
-		print "<div>"
 		usertime = None
 		userinput = None
 		first = True
@@ -133,7 +132,6 @@ def main(fname):
 				print format_time(float(timestamp)) 
 				print "\t\t</tt>"
 			print "\t</div>"
-		print "</div>"
 	print "</body>"
 	print "</html>"
 

@@ -136,11 +136,13 @@ def main(fname):
     homedir = None
     first = True
     print "<table>"
+    nodeid = 0
     for child in root.getchildren():
         usertime = None
         userinput = None
         # Invocation
         for node in child.getchildren():
+            nodeid += 1
             print "<div class='entry'>"
             print "<tr>"
             if node.tag == "invocation":
@@ -159,14 +161,14 @@ def main(fname):
                 print usertime
                 print "\t</span>"
                 print "<td>"
-                print "<a style='text-decoration: none;' href='javascript:toggleIt(" + timestamp + ");'><span class='expand' id='expand-%s'>+</span></a>" % timestamp 
+                print "<a style='text-decoration: none;' href='javascript:toggleIt(%d);'><span class='expand' id='expand-%d'>+</span></a>" % (nodeid, nodeid)
                 print "</td>"
                 print "<td>"
                 # Show the user input
                 print "\t<span class='input'>"
                 print prompt(dir, homedir) + userinput
                 print "</span>"
-                print "\t<div class='output' id='" + timestamp +"' style='display: none'>"
+                print "\t<div class='output' id='%d' style='display: none'>" % nodeid
                 timestamp = node.get("time")
                 if node.text:
                     print "<pre>" + node.text + "</pre>"

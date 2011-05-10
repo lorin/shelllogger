@@ -151,7 +151,6 @@ def main(fname):
                 userinput = clean_multiline_escapes(node.text)
                 if first:
                     homedir = dir
-                    print >>sys.stderr, homedir
                     userinput = clean_first_entry(userinput)
                     first = False
             else:

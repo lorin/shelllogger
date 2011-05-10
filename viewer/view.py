@@ -87,7 +87,7 @@ def start_time(tree):
 
     """
     root = tree.getroot()
-    return root[0][0].attrib['time']
+    return float(root[0][0].attrib['time'])
 
 
 def main(fname):
@@ -100,7 +100,7 @@ def main(fname):
 	print "<body>"
 	print "<h1>ShellLogger transcript</h1>"
 	tree = ET.parse(fname)
-	print "Started: " +  format_time(start_time(tree))
+	print "<p>Started: %s</p>" % format_time(start_time(tree))
 	
 	root = tree.getroot()
 	usertime = None

@@ -122,6 +122,8 @@ def main(fname):
     print "<body>"
     tree = ET.parse(fname)
     print "<h1>Log date: %s</h1>"  % format_time(start_time(tree))
+    
+    print "<p>Click on the <b>+</b> links to view the output for the given shell command.</p>"
 
     root = tree.getroot()
     usertime = None

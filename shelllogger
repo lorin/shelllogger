@@ -2,8 +2,7 @@
 """
 ShellLogger: Unix shell command invocation logger
 
-Usage: shelllogger <logfilename>
-
+Usage: shelllogger [-s, --sanitize outfilename] <logfilename>
 
 Upon invocation, it will spawn a new shell (either tcsh or bash, depending upon
 SHELL variable).
@@ -16,8 +15,11 @@ If no logfilename is specified, commands are logged to
 
 The script will automatically change the prompt upon startup to one of the following:
 
-bash prompt: PS1='[\w]$ '
-tcsh prompt: set prompt='[%~]$ '
+bash prompt: PS1='[SL \w]$ '
+tcsh prompt: set prompt='[SL %~]$ '
+
+If called with the -s option, it will parse <logfilename> as if it was a raw file and
+remove all escape characters, printing to standard out. 
 
 Much code borrowed from
 http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
@@ -36,6 +38,10 @@ import struct
 import termios
 import time
 import errno
+import codecs
+import datetime
+
+from optparse import OptionParser
 
 
 # Fix for older versions of Python
@@ -48,9 +54,51 @@ except NameError:
 # it is better to not capture their output
 TERMINAL_APPS = ['vi','vim','emacs','pico','nano','joe']
 
-BASH_PROMPT = "PS1='[\w]$ '"
-TCSH_PROMPT = "set prompt='[%~]$ '"
+BASH_PROMPT = "PS1='[SL \w]$ '"
+TCSH_PROMPT = "set prompt='[SL %~]$ '"
 SHELL_PROMPTS = {'bash':BASH_PROMPT,'tcsh':TCSH_PROMPT}
+
+def is_printable(c):
+    """
+    Returns true if c is a printable character. 
+    
+    We do this by checking for ord value above 32 (space),
+    as well as CR (\r), LF (\n) and tab (\t)
+    
+    """
+    return ord(c)>=32 or c in ['\r','\n', '\t']
+
+def sanitize(buf, 
+             backspaces=['\x08\x1b[K', '\x08 \x08'], 
+             escape_regex=re.compile(r'\x1b(\[|\]|\(|\))[;?0-9]*[0-9A-Za-z](.*\x07)?')):
+    """Filter control characters out of the string buf, given a list of control codes
+    that represent backspaces, and a regex of escape sequences.
+    
+    backspaces are characters emitted when the user hits backspace. 
+    This will probably vary from terminal to terminal, and
+    this list should grow as new terminals are encountered.
+    
+    escape_regex is a Regex filter to capture all escape sequences.
+    Modified from: http://wiki.tcl.tk/9673
+    """
+    # Filter out control characters
+
+    # First, handle the backspaces.
+    for backspace in backspaces:
+        try:
+            while True:
+                ind = buf.index(backspace) 
+                buf = ''.join((buf[0:ind-1],buf[ind+len(backspace):]))
+        except:
+            pass
+            
+    strip_escapes = escape_regex.sub('',buf)
+    
+    # strip non-printable ASCII characters
+
+    clean = ''.join([x for x in strip_escapes if is_printable(x)])
+    return clean
+
 
 class TTY:
     def __init__(self):
@@ -116,7 +164,7 @@ def get_log_dir():
     else:
         return os.path.expanduser('~/.shelllogger')
 
-def main(logfilename=None):
+def main(logfilename=None, debug=False):
     # Check for recursive call
     env_var = 'ShellLogger'
     if os.environ.has_key(env_var):
@@ -137,7 +185,11 @@ def main(logfilename=None):
             if e.errno != errno.EEXIST:
                 raise e
 
-        logfilename = os.path.join(dirname,'log.%d.xml' % time.time())
+        logfilename = os.path.join(dirname,'log.%d.raw' % time.time())
+        if debug:
+            debugfilename = os.path.join(dirname,'log.%d.debug' % time.time())
+        else:
+            debugfilename = None
 
     pid, fd = pty.fork()
     
@@ -160,7 +212,7 @@ def main(logfilename=None):
     bufsize = 1024
 
     try:
-        logger = Logger(logfilename)
+        logger = Logger(logfilename, debugfilename)
 
         # Set the shell prompt properly
         os.write(fd,SHELL_PROMPTS[get_shell()])
@@ -201,37 +253,58 @@ def main(logfilename=None):
             if exit==1:
                 break
 
-        logger.done()
+        xmlfilename = logger.done()
 
     except:
         input.restore()
         raise
     input.restore()
-    print "ShellLogger data stored in " + logfilename
+    print "ShellLogger data stored in " + xmlfilename
 
 class Logger:
-    def __init__(self,logfilename):
+    def __init__(self,logfilename, debugfilename):
+        self.logfilename = logfilename
         self.logfile = open(logfilename,'w')
-        self.logfile.write("<cli-logger>\n\n")
+        self.logfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        self.logfile.write('<cli-logger machine="%s">\n\n' % socket.gethostname())
         self.buffer = ''
         self.cwd = os.getcwd()
         self.state = BeginState(self)
-        # Regex filter to capture all escape sequences.
-        # Modified from: http://wiki.tcl.tk/9673
-        self.filter = re.compile(r'\x1b(\[|\]|\(|\))[;?0-9]*[0-9A-Za-z](.*\x07)?')
+        self.debugfilename = debugfilename
+        if self.debugfilename is not None:
+            self.debugfile = open(debugfilename, 'w')
+        else:
+            self.debugfile = None
 
-        # Characters emitted when the user hits backspace.
-        # This will probably vary from terminal to terminal, and
-        # this list should grow as new terminals are encountered.
-        self.BACKSPACES = ['\x08\x1b[K', '\x08 \x08']
-
-        
 
     def done(self):
+        """Call when session is complete.
+        
+        Returns the name of the XML file
+        
+        """
         self.logfile.write("]]></result>\n</cli-logger-entry>\n</cli-logger>\n")
         self.logfile.close()
+        return self.raw_to_xml()
+        
+    def raw_to_xml(self):
+        """Convert the .raw file, with illegal characters and escape keys, to a proper XML version.
+        
+        Returns the name of the XML file
+        """
+        xmlfilename = self.logfilename.replace('.raw','.xml')
+        fout = codecs.open(xmlfilename, encoding="utf-8", mode="w")
+        for line in open(self.logfilename):
+            fout.write(sanitize(line))
+            
+        fout.close()
+        return xmlfilename
+        
+        
 
     def input_from_shell(self,buf):
+        if self.debugfile:
+            self.debug_log(buf)
         self.state.input_from_shell(buf)
         self.state = self.state.next_state()
 
@@ -241,25 +314,18 @@ class Logger:
 
     def write(self,buf):
         self.logfile.write(buf)
-
-    def write_filtered(self,buf):
-        # Write to file, filtering out control characters
-
-        # First, handle the backspaces.
-        for BACKSPACE in self.BACKSPACES:
-            try:
-                while True:
-                    ind = buf.index(BACKSPACE) 
-                    buf = ''.join((buf[0:ind-1],buf[ind+len(BACKSPACE):]))
-            except:
-                pass
         
-        self.logfile.write(self.filter.sub('',buf))
-
+    def debug_log(self, buf):
+        """Record to the debug log"""
+        self.debugfile.write(datetime.datetime.now().strftime("%H:%M:%S "))
+        self.debugfile.write("<")
+        self.debugfile.write(buf)
+        self.debugfile.write(">\n")
+        
 
 # regex for matching the prompt
 # this is used to identify the data directory
-re_prompt = re.compile(r'^\[(.*)\]\$ $')
+re_prompt = re.compile(r'^\[SL (.*)\]\$ $')
 
 def is_enter(buf):
     # Check if buffer consists entirely of \n or \r
@@ -306,15 +372,13 @@ class UserTypingState:
         self.program_invoked = None
 
     def input_from_shell(self,buf):
-        if is_enter(buf):
+        if is_enter(buf) and self.logger.buffer[-1]!='\\':
             self.seen_cr = True
             self.program_invoked = self.logger.buffer.split()[0]
             self.logger.write('''<cli-logger-entry>
 <invocation time="%f"
-current-directory="%s"
-machine="%s"><![CDATA[\n''' % (time.time(),self.logger.cwd,socket.gethostname()))
-            self.logger.write_filtered(self.logger.buffer)
-            self.logger.write('\n')
+current-directory="%s"><![CDATA[''' % (time.time(),self.logger.cwd))
+            self.logger.write(self.logger.buffer)
             self.logger.write(']]></invocation>\n')
         else:
             self.logger.buffer += buf
@@ -355,7 +419,7 @@ class WaitingForShellState:
             self.write_output_to_log(buf)
 
     def write_output_to_log(self,buf):
-        self.logger.write_filtered(buf)
+        self.logger.write(buf)
         
     def input_from_user(self,buf):
         pass
@@ -399,7 +463,7 @@ class ShellOutputState:
             self.write_output_to_log(buf)
 
     def write_output_to_log(self,buf):
-        self.logger.write_filtered(buf)
+        self.logger.write(buf)
 
     def input_from_user(self,buf):
         pass
@@ -413,11 +477,32 @@ class ShellOutputState:
 class ShellOutputNoOutputState(ShellOutputState):
     def write_output_to_log(self,buf):
         pass
-    
-        
 
+
+
+def sanitize_file(infilename, outfilename):
+    """Strip all control characters and non-UTF-8 characters from a file.
+    
+    Prints the output to standard out"""
+    fout = codecs.open(outfilename, encoding="utf-8", mode="w")
+    for line in codecs.open(infilename, encoding="utf-8"):
+        fout.write(sanitize(line))
+    
 if __name__ == '__main__':
-    if len(sys.argv)==1:
-        main()
+    parser = OptionParser()
+    parser.add_option("-s", "--sanitize", dest="sanitize_file",
+                      help="sanitize an existing logfile to the specified outputfile")
+    parser.add_option("-d", "--debug", action="store_true", dest="debug", help="enable debug logging")
+    (options, args) = parser.parse_args()
+    
+    if options.sanitize_file is None:        
+        if len(args)==0:
+            main(logfilename=None, debug=options.debug)
+        else:
+            main(logfilename=args[0],debug=options.debug) 
     else:
-        main(sys.argv[1]) 
+        if len(args)==0:
+            raise ValueError, "Must specify both an input file and an output file when sanitizing"
+        else:
+            sanitize_file(infilename=args[0],outfilename=options.sanitize_file)
+

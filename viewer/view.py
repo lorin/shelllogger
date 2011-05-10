@@ -74,17 +74,34 @@ def clean_first_entry(s):
     return regexp.sub('', s)
     
 def start_time(tree):
-    """Retrieve a timestamp with the start time of the log"""
-    root = tree.getroot()
-    child = 
+    """Retrieve a timestamp with the start time of the log
     
+    <cli-logger-entry>
+        <invocation time="1305039088.575128"
+            current-directory="/Users/lorin/dev"><![CDATA[PS1='[SL \w]$ '
+                [lorin@bender dev]$ PS1='[SL \w]$ '
+                [SL ~/dev]$ ls]]>
+        </invocation>
+        <result time="1305039088.578396"><![CDATA[]]></result>
+    </cli-logger-entry>
+
+    """
+    root = tree.getroot()
+    return root[0][0].attrib['time']
+
 
 def main(fname):
 	print "<html>"
+	print "<head>"
 	print "<script type='text/javascript'>"
 	print toggleIt
-	print"</script>"
+	print "</script>"
+	print "</head>"
+	print "<body>"
+	print "<h1>ShellLogger transcript</h1>"
 	tree = ET.parse(fname)
+	print "Started: " +  format_time(start_time(tree))
+	
 	root = tree.getroot()
 	usertime = None
 	userinput = None
@@ -117,6 +134,7 @@ def main(fname):
 				print "</tt>"
 			print "</div>"
 		print "</div>"
+	print "</body>"
 	print "</html>"
 
 if __name__ == '__main__':

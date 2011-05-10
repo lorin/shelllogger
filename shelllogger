@@ -372,7 +372,7 @@ class UserTypingState:
         self.program_invoked = None
 
     def input_from_shell(self,buf):
-        if is_enter(buf):
+        if is_enter(buf) and self.logger.buffer[-1]!='\\':
             self.seen_cr = True
             self.program_invoked = self.logger.buffer.split()[0]
             self.logger.write('''<cli-logger-entry>

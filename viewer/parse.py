@@ -73,11 +73,6 @@ def clean_first_entry(s):
     regexp = re.compile(r'PS1.*\]\$ ', flags=re.DOTALL)
     return regexp.sub('', s)
     
-def start_time(tree):
-    """Retrieve a timestamp with the start time of the log"""
-    root = tree.getroot()
-    child = 
-    
 
 def main(fname):
 	print "<html>"

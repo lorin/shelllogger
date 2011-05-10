@@ -135,11 +135,11 @@ def main(fname):
     dir = None
     homedir = None
     first = True
+    print "<table>"
     for child in root.getchildren():
         usertime = None
         userinput = None
         # Invocation
-        print "<table>"
         for node in child.getchildren():
             print "<div class='entry'>"
             print "<tr>"
@@ -166,7 +166,7 @@ def main(fname):
                 print "\t<span class='input'>"
                 print prompt(dir, homedir) + userinput
                 print "</span>"
-                print "\t<div class='output' id=" + timestamp +" style='display: none'>"
+                print "\t<div class='output' id='" + timestamp +"' style='display: none'>"
                 timestamp = node.get("time")
                 if node.text:
                     print "<pre>" + node.text + "</pre>"

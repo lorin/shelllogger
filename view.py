@@ -83,7 +83,7 @@ def remove_multiline_escapes(s):
     
 def clean_multiline_escapes(s):
     """Takes an input that has backslashes to do multilines and adds brs"""
-    return s.replace('\\\n> ', '\\<br>\n')
+    return s.replace('\\\n> ', '\\<br>\n> ')
 
     
 def clean_first_entry(s):

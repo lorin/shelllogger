@@ -109,6 +109,10 @@ def start_time(tree):
     return float(root[0][0].attrib['time'])
 
 
+def prompt(dirname, homedir):
+    """Calculate a prompt given the current directory and home directory"""
+    return "[%s]$ " % dirname.replace(homedir,'~')
+
 def main(fname):
     print "<html>"
     print "<head>"
@@ -128,10 +132,12 @@ def main(fname):
     root = tree.getroot()
     usertime = None
     userinput = None
+    dir = None
+    homedir = None
+    first = True
     for child in root.getchildren():
         usertime = None
         userinput = None
-        first = True
         # Invocation
         print "<table>"
         for node in child.getchildren():
@@ -144,6 +150,8 @@ def main(fname):
                 usertime = format_time(float(timestamp))
                 userinput = clean_multiline_escapes(node.text)
                 if first:
+                    homedir = dir
+                    print >>sys.stderr, homedir
                     userinput = clean_first_entry(userinput)
                     first = False
             else:
@@ -152,12 +160,12 @@ def main(fname):
                 print usertime
                 print "\t</span>"
                 print "<td>"
-                print "[<a style='text-decoration: none;' href='javascript:toggleIt(" + timestamp + ");'><span class='expand' id='expand-%s'>+</span></a>]" % timestamp 
+                print "<a style='text-decoration: none;' href='javascript:toggleIt(" + timestamp + ");'><span class='expand' id='expand-%s'>+</span></a>" % timestamp 
                 print "</td>"
                 print "<td>"
                 # Show the user input
                 print "\t<span class='input'>"
-                print userinput
+                print prompt(dir, homedir) + userinput
                 print "</span>"
                 print "\t<div class='output' id=" + timestamp +" style='display: none'>"
                 timestamp = node.get("time")

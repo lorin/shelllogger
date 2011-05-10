@@ -5,6 +5,7 @@ Parses a logfile
 """
 import xml.etree.ElementTree as ET 
 
+import re
 import sys
 import time
 
@@ -62,6 +63,23 @@ def format_time(timestamp):
     fmt = "%m/%d/%Y %H:%M:%S"
     return time.strftime(fmt, time.localtime(timestamp))
 
+def remove_multiline_escapes(s):
+    """Takes an input that has backslashes to do multilines and removes them"""
+    return s.replace('\\\n> ', '')
+    
+def clean_first_entry(s):
+    """For the first entry, it removes some text about setting the prompt
+    that always ends up in the shell"""
+    regexp = re.compile(r'PS1.*\]\$ ', flags=re.DOTALL)
+    return regexp.sub('', s)
+    
+def start_time(tree):
+    """Retrieve a timestamp with the start time of the log"""
+    pass
+    
+def end_time(tree):
+    """Retrieve a timestamp with the end time of the log"""
+    pass
 
 def main(fname):
 	print "<html>"
@@ -76,6 +94,7 @@ def main(fname):
 		print "<div>"
 		usertime = None
 		userinput = None
+		first = True
 		for node in child.getchildren():
 			if node.tag == "invocation":
 				print "<div>"
@@ -83,7 +102,10 @@ def main(fname):
 				machine = node.get("machine")
 				dir = node.get("current-directory")
 				usertime = format_time(float(timestamp))
-				userinput = node.text 
+				userinput = remove_multiline_escapes(node.text )
+				if first:
+				    userinput = clean_first_entry(userinput)
+				    first = False
 			else:
 				print "<tt>"
 				print usertime + "[<a href='javascript:toggleIt(" + timestamp + ");'>+</a>]" + userinput

@@ -12,16 +12,16 @@ import time
 css = '''
 h1 { font-size: 1.2em; margin: .67em 0 }
 
-span.time
+div.entry
 {
     font-family:monospace;
+}
+
+span.time
+{
     display:none;
 }
 
-span.input
-{
-    font-family:monospace;
-}
 
 div.output
 {
@@ -37,7 +37,7 @@ toggleIt = '''
 // Email: jsarch@vt.edu
 function toggleIt( whichLayer )
 {
-  var elem, vis;
+  var elem, vis, link;
   if( document.getElementById ) // this is the way the standards work
     elem = document.getElementById( whichLayer );
   else if( document.all ) // this is the way old msie versions work
@@ -45,39 +45,20 @@ function toggleIt( whichLayer )
   else if( document.layers ) // this is the way nn4 works
     elem = document.layers[whichLayer];
   vis = elem.style;
+  
+
+
   // if the style.display value is blank we try to figure it out here
   if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
     vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
-  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
+
+  vis.display = (vis.display == '' || vis.display=='block') ? 'none' : 'block';
+
+  link = document.getElementById('expand-' + whichLayer);
+  link.innerHTML = (link.innerHTML=='+' ? '-' : '+');
+
 }
 
-//JSARCH
-function show( whichLayer )
-{
-  var elem, vis;
-  if( document.getElementById ) // this is the way the standards work
-    elem = document.getElementById( whichLayer );
-  else if( document.all ) // this is the way old msie versions work
-      elem = document.all[whichLayer];
-  else if( document.layers ) // this is the way nn4 works
-    elem = document.layers[whichLayer];
-  vis = elem.style;
-  vis.display = 'inline';
-}
-
-function hide( whichLayer )
-{
-  var elem, vis;
-  if( document.getElementById ) // this is the way the standards work
-    elem = document.getElementById( whichLayer );
-  else if( document.all ) // this is the way old msie versions work
-      elem = document.all[whichLayer];
-  else if( document.layers ) // this is the way nn4 works
-    elem = document.layers[whichLayer];
-  vis = elem.style;
-  vis.display = 'none';
-}
-//JSARCH
 '''
 
 def format_time(timestamp):
@@ -155,7 +136,7 @@ def main(fname):
                 print "\t<span class='time'>"
                 print usertime
                 print "\t</span>"
-                print "[<a href='javascript:toggleIt(" + timestamp + ");'><tt>+</tt></a>]" 
+                print "[<a style='text-decoration: none;' href='javascript:toggleIt(" + timestamp + ");'><span class='expand' id='expand-%s'>+</span></a>]" % timestamp 
                 
                 # Show the user input
                 print "\t<span class='input'>"

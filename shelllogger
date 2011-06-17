@@ -437,6 +437,13 @@ class WaitingForShellState:
 
 
 class WaitingForShellNoOutputState(WaitingForShellState):
+    """
+    In this state, we do not want to capture any output. The typical case
+    is when the user has invoked an interactive program such as a 
+    text editor.
+    """
+
+
     def write_output_to_log(self,buf):
         pass
 

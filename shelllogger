@@ -384,9 +384,6 @@ class UserTypingState:
 current-directory="%s"><![CDATA[''' % (time.time(),self.logger.cwd))
             self.logger.write(self.logger.buffer)
             self.logger.write(']]></invocation>\n')
-            print "program invoked is "+self.program_invoked
-            print "buffer is"+self.logger.buffer 
-            print "length is "+str(len(self.logger.buffer.split()))
         else:
             self.logger.buffer += buf
     

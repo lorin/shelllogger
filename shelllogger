@@ -91,7 +91,9 @@ def sanitize(buf,
         try:
             while True:
                 ind = buf.index(backspace) 
+                print buf
                 buf = ''.join((buf[0:ind-1],buf[ind+len(backspace):]))
+                print buf
         except:
             pass
             
@@ -329,7 +331,7 @@ class Logger:
 
 # regex for matching the prompt
 # this is used to identify the data directory
-re_prompt = re.compile(r'^\[SL (.*)\]\$ $')
+re_prompt = re.compile(r'\[SL (.*)\]\$ $')
 
 def is_enter(buf):
     # Check if buffer consists entirely of \n or \r

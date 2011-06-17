@@ -41,6 +41,8 @@ import errno
 import codecs
 import datetime
 
+isFirst = True
+
 from optparse import OptionParser
 
 
@@ -54,9 +56,10 @@ except NameError:
 # it is better to not capture their output
 TERMINAL_APPS = ['vi','vim','emacs','pico','nano','joe']
 
-BASH_PROMPT = "PS1='[SL \w]$ '"
-TCSH_PROMPT = "set prompt='[SL %~]$ '"
+BASH_PROMPT = "PS1='[SL \w]$ ' \n"
+TCSH_PROMPT = "set prompt='[SL %~]$ ' \n"
 SHELL_PROMPTS = {'bash':BASH_PROMPT,'tcsh':TCSH_PROMPT}
+
 
 def is_printable(c):
     """
@@ -165,6 +168,7 @@ def get_log_dir():
         return os.path.expanduser('~/.shelllogger')
 
 def main(logfilename=None, debug=False):
+
     # Check for recursive call
     env_var = 'ShellLogger'
     if os.environ.has_key(env_var):
@@ -380,11 +384,18 @@ class UserTypingState:
 current-directory="%s"><![CDATA[''' % (time.time(),self.logger.cwd))
             self.logger.write(self.logger.buffer)
             self.logger.write(']]></invocation>\n')
+            print "program invoked is "+self.program_invoked
+            print "buffer is"+self.logger.buffer 
+            print "length is "+str(len(self.logger.buffer.split()))
         else:
             self.logger.buffer += buf
     
     def input_from_user(self,buf):
         # Don't need to take any action
+        global isFirst
+        if(isFirst):
+            isFirst = False
+            self.logger.buffer = ''
         pass
 
     def next_state(self):
@@ -393,7 +404,6 @@ current-directory="%s"><![CDATA[''' % (time.time(),self.logger.cwd))
                 return WaitingForShellNoOutputState(self.logger)
             else:
                 return WaitingForShellState(self.logger)
-
                 
         else:
             return self

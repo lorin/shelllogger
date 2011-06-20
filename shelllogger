@@ -252,6 +252,7 @@ def main(logfilename=None, debug=False):
                         if from_shell=='':
                             exit = 1
                     except OSError:
+                        print "I shoudlnt b here"
                     # On Linux, os.read throws an OSError
                     # when data is done
                         exit = 1
@@ -284,6 +285,7 @@ class Logger:
 
 
     def done(self):
+        print "done"
         """Call when session is complete.
         
         Returns the name of the XML file
@@ -294,6 +296,7 @@ class Logger:
         return self.raw_to_xml()
         
     def raw_to_xml(self):
+        print "raw  to xml"
         """Convert the .raw file, with illegal characters and escape keys, to a proper XML version.
         
         Returns the name of the XML file
@@ -309,19 +312,23 @@ class Logger:
         
 
     def input_from_shell(self,buf):
+        print "inptut from shell"
         if self.debugfile:
             self.debug_log(buf)
         self.state.input_from_shell(buf)
         self.state = self.state.next_state()
 
     def input_from_user(self,buf):
+        print "input from user"
         self.state.input_from_user(buf)
         self.state = self.state.next_state()
 
     def write(self,buf):
+        print "writing "+buf
         self.logfile.write(buf)
         
     def debug_log(self, buf):
+        print "debug log"
         """Record to the debug log"""
         self.debugfile.write(datetime.datetime.now().strftime("%H:%M:%S "))
         self.debugfile.write("<")
@@ -412,8 +419,10 @@ class WaitingForShellState:
         self.logger = logger
         self.seen_shell_input = False
         self.seen_prompt = False
+        print "waitin for shell state"
 
     def input_from_shell(self,buf):
+        print " waitin for shell state input from shell"
         # Check for the case of no input, just a shell prompt
         m = re_prompt.match(buf)
         if m is not None:
@@ -428,15 +437,19 @@ class WaitingForShellState:
             self.write_output_to_log(buf)
 
     def write_output_to_log(self,buf):
+        print "waitin for shell state  output to log"
         self.logger.write(buf)
         
     def input_from_user(self,buf):
+        print "waitin for shell state   input from user"
         pass
 
     def shell_output_state(self,logger):
+        print "waitin for shell state   shell output state"
         return ShellOutputState(logger)
 
     def next_state(self):
+        print "waitin for shell state   next state"
         if self.seen_prompt:
             return BeginState(self.logger)
         elif self.seen_shell_input:
@@ -477,6 +490,7 @@ class ShellOutputState:
             self.logger.write("]]></result>\n</cli-logger-entry>\n\n")
         else:
             self.write_output_to_log(buf)
+            print buf;
 
     def write_output_to_log(self,buf):
         self.logger.write(buf)

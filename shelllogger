@@ -330,7 +330,7 @@ class Logger:
 
 # regex for matching the prompt
 # this is used to identify the data directory
-re_prompt = re.compile(r'(.*)^\[SL (.*)\]\$ $')
+re_prompt = re.compile(r'(?:.*)^\[SL (.*)\]\$ $')
 
 def is_enter(buf):
     # Check if buffer consists entirely of \n or \r

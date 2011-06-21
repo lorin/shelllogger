@@ -250,7 +250,6 @@ def main(logfilename=None, debug=False):
                         if from_shell=='':
                             exit = 1
                     except OSError:
-                        print "I shoudlnt b here"
                     # On Linux, os.read throws an OSError
                     # when data is done
                         from_shell = ''
@@ -308,8 +307,6 @@ class Logger:
         fout.close()
         return xmlfilename
         
-        
-
     def input_from_shell(self,buf):
         if self.debugfile:
             self.debug_log(buf)
@@ -354,7 +351,6 @@ class BeginState:
         if m is not None:
             self.logger.cwd = os.path.expanduser(m.group(1))
             return
-
         # If the user just hit enter, we don't log it
         if is_enter(buf):
             return
@@ -380,7 +376,17 @@ class UserTypingState:
         self.program_invoked = None
 
     def input_from_shell(self,buf):
-        if is_enter(buf) and len(self.logger.buffer)>0 and (self.logger.buffer[-1]!='\\' or 'logout' in buf):
+        if(buf.startswith('\x0D') or buf.startswith('\r')):
+            self.seen_cr = True
+            self.program_invoked = self.logger.buffer.split()[0]
+            self.logger.write('''<cli-logger-entry>
+<invocation time="%f"
+current-directory="%s"><![CDATA[''' % (time.time(),self.logger.cwd))
+            self.logger.write(self.logger.buffer)
+            self.logger.write(']]></invocation>\n')
+            self.logger.buffer = buf;    
+          
+        elif is_enter(buf) and len(self.logger.buffer)>0 and ( self.logger.buffer[-1]!='\\' or 'logout' in buf ):
             self.seen_cr = True
             self.program_invoked = self.logger.buffer.split()[0]
             self.logger.write('''<cli-logger-entry>
@@ -433,7 +439,8 @@ class WaitingForShellState:
         self.logger.write(buf)
         
     def input_from_user(self,buf):
-        pass
+        self.logger.write('<result time="%f"></result>\n</cli-logger-entry>\n\n' % time.time())
+        self.seen_prompt = True
 
     def shell_output_state(self,logger):
         return ShellOutputState(logger)
@@ -468,7 +475,6 @@ class ShellOutputState:
         self.logger = logger
         self.saw_prompt = False
 
-
     def input_from_shell(self,buf):
         # Check if it's the prompt
         m = re_prompt.match(buf)
@@ -484,6 +490,7 @@ class ShellOutputState:
         self.logger.write(buf)
 
     def input_from_user(self,buf):
+        self.saw_prompt = True
         pass
 
     def next_state(self):
@@ -523,4 +530,3 @@ if __name__ == '__main__':
             raise ValueError, "Must specify both an input file and an output file when sanitizing"
         else:
             sanitize_file(infilename=args[0],outfilename=options.sanitize_file)
-

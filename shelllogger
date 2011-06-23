@@ -278,6 +278,7 @@ class Logger:
         self.cwd = os.getcwd()
         self.state = BeginState(self)
         self.debugfilename = debugfilename
+        self.isLinux = False
         if self.debugfilename is not None:
             self.debugfile = open(debugfilename, 'w')
         else:
@@ -332,6 +333,9 @@ class Logger:
 # this is used to identify the data directory
 re_prompt = re.compile(r'(?:.*)^\[SL (.*)\]\$ $')
 
+linux_prompt = re.compile(r'(?:.*)\[SL (.*)\]\$')
+
+
 def is_enter(buf):
     # Check if buffer consists entirely of \n or \r
     for c in buf:
@@ -377,6 +381,7 @@ class UserTypingState:
 
     def input_from_shell(self,buf):
         if(buf.startswith('\x0D') or buf.startswith('\r')):
+            self.logger.isLinux = True
             self.seen_cr = True
             self.program_invoked = self.logger.buffer.split()[0]
             self.logger.write('''<cli-logger-entry>
@@ -439,8 +444,12 @@ class WaitingForShellState:
         self.logger.write(buf)
         
     def input_from_user(self,buf):
-        self.logger.write('<result time="%f"></result>\n</cli-logger-entry>\n\n' % time.time())
-        self.seen_prompt = True
+        if self.logger.isLinux:
+            m = linux_prompt.match(self.logger.buffer.strip())
+            if m is not None:
+                self.logger.cwd = os.path.expanduser(m.group(1))
+                self.logger.write('<result time="%f"></result>\n</cli-logger-entry>\n\n' % time.time())
+                self.seen_prompt = True
 
     def shell_output_state(self,logger):
         return ShellOutputState(logger)
@@ -490,8 +499,9 @@ class ShellOutputState:
         self.logger.write(buf)
 
     def input_from_user(self,buf):
-        self.saw_prompt = True
-        pass
+        if(self.logger.isLinux):
+            self.logger.isLinux = False         
+            self.saw_prompt = True
 
     def next_state(self):
         if self.saw_prompt:

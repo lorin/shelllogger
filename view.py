@@ -8,6 +8,9 @@ import xml.etree.ElementTree as ET
 import re
 import sys
 import time
+import codecs
+
+sys.stdout=codecs.getwriter('utf-8')(sys.stdout)
 
 css = '''
 

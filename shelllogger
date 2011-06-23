@@ -331,7 +331,7 @@ class Logger:
 
 # regex for matching the prompt
 # this is used to identify the data directory
-re_prompt = re.compile(r'(?:.*)^\[SL (.*)\]\$ $')
+re_prompt = re.compile(r'(.*)^\[SL (.*)\]\$ $', re.MULTILINE | re.DOTALL | re.IGNORECASE)
 
 linux_prompt = re.compile(r'(?:.*)\[SL (.*)\]\$')
 
@@ -353,7 +353,7 @@ class BeginState:
         # If it's the prompt, then it's just the very first shell
         m = re_prompt.match(buf) 
         if m is not None:
-            self.logger.cwd = os.path.expanduser(m.group(1))
+            self.logger.cwd = os.path.expanduser(m.group(2))
             return
         # If the user just hit enter, we don't log it
         if is_enter(buf):
@@ -390,7 +390,7 @@ current-directory="%s"><![CDATA[''' % (time.time(),self.logger.cwd))
             self.logger.write(self.logger.buffer)
             self.logger.write(']]></invocation>\n')
             self.logger.buffer = buf;    
-          
+               
         elif is_enter(buf) and len(self.logger.buffer)>0 and ( self.logger.buffer[-1]!='\\' or 'logout' in buf ):
             self.seen_cr = True
             self.program_invoked = self.logger.buffer.split()[0]
@@ -432,7 +432,7 @@ class WaitingForShellState:
         if m is not None:
             # Empty result
             self.logger.write('<result time="%f"></result>\n</cli-logger-entry>\n\n' % time.time())
-            self.logger.cwd = os.path.expanduser(m.group(1))
+            self.logger.cwd = os.path.expanduser(m.group(2))
             self.seen_prompt = True
             return
         else:
@@ -444,7 +444,7 @@ class WaitingForShellState:
         self.logger.write(buf)
         
     def input_from_user(self,buf):
-        if self.logger.isLinux:
+         if self.logger.isLinux:
             m = linux_prompt.match(self.logger.buffer.strip())
             if m is not None:
                 self.logger.cwd = os.path.expanduser(m.group(1))
@@ -490,7 +490,8 @@ class ShellOutputState:
         if m is not None:
             # It's the prompt!
             self.saw_prompt = True
-            self.logger.cwd = os.path.expanduser(m.group(1))
+            self.logger.cwd = os.path.expanduser(m.group(2))
+            self.write_output_to_log(m.group(1))
             self.logger.write("]]></result>\n</cli-logger-entry>\n\n")
         else:
             self.write_output_to_log(buf)

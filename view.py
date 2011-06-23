@@ -5,6 +5,7 @@ Parses a logfile
 """
 import xml.etree.ElementTree as ET 
 
+import os.path
 import re
 import sys
 import time
@@ -112,8 +113,9 @@ def start_time(tree):
     return float(root[0][0].attrib['time'])
 
 
-def prompt(dirname, homedir):
+def prompt(dirname):
     """Calculate a prompt given the current directory and home directory"""
+    homedir = os.path.expanduser('~')
     return "[%s]$ " % dirname.replace(homedir,'~')
 
 def main(fname):
@@ -136,7 +138,6 @@ def main(fname):
     usertime = None
     userinput = None
     dir = None
-    homedir = None
     first = True
     print "<table>"
     nodeid = 0
@@ -155,7 +156,6 @@ def main(fname):
                 usertime = format_time(float(timestamp))
                 userinput = clean_multiline_escapes(node.text)
                 if first:
-                    homedir = dir
                     userinput = clean_first_entry(userinput)
                     first = False
             else:
@@ -169,7 +169,7 @@ def main(fname):
                 print "<td>"
                 # Show the user input
                 print "\t<span class='input'>"
-                print prompt(dir, homedir) + userinput
+                print prompt(dir) + userinput
                 print "</span>"
                 print "\t<div class='output' id='%d' style='display: none'>" % nodeid
                 timestamp = node.get("time")

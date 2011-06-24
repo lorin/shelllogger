@@ -120,6 +120,7 @@ def prompt(dirname):
 
 def main(fname):
     print "<html>"
+    print "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">"
     print "<head>"
     print "<style type='text/css'>"
     print css

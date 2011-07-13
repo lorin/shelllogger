@@ -343,7 +343,7 @@ class Logger:
 # regex for matching the prompt
 # this is used to identify the data directory
 re_prompt = re.compile(r'(.*)^\[SL (.*)\]\$ $', re.MULTILINE | re.DOTALL | re.IGNORECASE)
-
+mac_prompt = re.compile(re.compile(r'(?:.*)\[SL (.*)\](.*)(\$)?',re.MULTILINE | re.DOTALL | re.IGNORECASE))
 linux_prompt = re.compile(r'(?:.*)\[SL (.*)\]\$')
 
 
@@ -442,10 +442,18 @@ class WaitingForShellState:
         m = re_prompt.match(buf)
         if m is not None:
             # Empty result
-            self.logger.write('<result time="%f"></result>\n</cli-logger-entry>\n\n' % time.time())
-            self.logger.cwd = os.path.expanduser(m.group(2))
-            self.seen_prompt = True
-            return
+            try:
+                self.logger.write('<result time="%f"></result>\n</cli-logger-entry>\n\n' % time.time())
+                self.logger.cwd = os.path.expanduser(m.group(2))
+                self.seen_prompt = True
+                return
+            except:
+               m = mac_prompt.match(buf)
+               if m is not None:
+                   self.logger.cwd = os.path.expanduser(m.group(1))
+                   self.logger.write('</result>\n</cli-logger-entry>\n\n' % time.time())
+                   self.seen_prompt = True
+                   return
         else:
             self.seen_shell_input = True
             self.logger.write('<result time="%f"><![CDATA[\n' % time.time())
@@ -501,9 +509,16 @@ class ShellOutputState:
         if m is not None:
             # It's the prompt!
             self.saw_prompt = True
-            self.logger.cwd = os.path.expanduser(m.group(2))
-            self.write_output_to_log(m.group(1))
-            self.logger.write("]]></result>\n</cli-logger-entry>\n\n")
+            try: 
+               self.logger.cwd = os.path.expanduser(m.group(2))
+               self.write_output_to_log(m.group(1))
+               self.logger.write("]]></result>\n</cli-logger-entry>\n\n")
+            except:
+               m = mac_prompt.match(buf)
+               if m is not None:
+                   self.logger.cwd = os.path.expanduser(m.group(1))
+                   self.logger.write('</result>\n</cli-logger-entry>\n\n' % time.time())
+                   self.seen_prompt = True
         else:
             self.write_output_to_log(buf)
 

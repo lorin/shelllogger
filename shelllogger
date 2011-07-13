@@ -167,7 +167,7 @@ def get_log_dir():
     else:
         return os.path.expanduser('~/.shelllogger')
 
-def main(logfilename=None, debug=False):
+def main(logfilename, debug):
 
     # Check for recursive call
     env_var = 'ShellLogger'
@@ -217,10 +217,12 @@ def main(logfilename=None, debug=False):
 
     try:
         logger = Logger(logfilename, debugfilename)
+       
+        if debugfilename is not None:
+            print "Warning, shelllogger running in debug mode. All keystrokes will be logged to a plaintext file. Do not type in any passwords during this session!"
 
         # Set the shell prompt properly
         os.write(fd,SHELL_PROMPTS[get_shell()])
-        os.write(fd,'\n')
 
         while True:
             delay = 1           
@@ -281,9 +283,9 @@ class Logger:
         self.isLinux = False
         if self.debugfilename is not None:
             self.debugfile = open(debugfilename, 'w')
+            self.debugfile.write("<cli-debug>\n")
         else:
             self.debugfile = None
-
 
     def done(self):
         """Call when session is complete.
@@ -293,6 +295,8 @@ class Logger:
         """
         self.logfile.write("]]></result>\n</cli-logger-entry>\n</cli-logger>\n")
         self.logfile.close()
+        if self.debugfilename is not None:
+            self.debugfile.write("</cli-debug>")
         return self.raw_to_xml()
         
     def raw_to_xml(self):
@@ -310,24 +314,31 @@ class Logger:
         
     def input_from_shell(self,buf):
         if self.debugfile:
-            self.debug_log(buf)
+            self.debug_log(buf,True)
         self.state.input_from_shell(buf)
         self.state = self.state.next_state()
 
     def input_from_user(self,buf):
+        if self.debugfile:
+            self.debug_log(buf,False)
         self.state.input_from_user(buf)
         self.state = self.state.next_state()
 
     def write(self,buf):
         self.logfile.write(buf)
         
-    def debug_log(self, buf):
+    def debug_log(self, buf, shell):
         """Record to the debug log"""
-        self.debugfile.write(datetime.datetime.now().strftime("%H:%M:%S "))
-        self.debugfile.write("<")
-        self.debugfile.write(buf)
-        self.debugfile.write(">\n")
-        
+
+        # Handle Shell output
+        if shell == True:
+            self.debugfile.write("<shell time=\" " + datetime.datetime.now().strftime("%H:%M:%S ") + "\" >" )
+            self.debugfile.write("<![CDATA["+buf+"]]>\n")
+
+        # Handle User Input
+        else:
+            self.debugfile.write("<user time=\" " + datetime.datetime.now().strftime("%H:%M:%S ") + "\" >" )
+            self.debugfile.write("<![CDATA["+buf+"]]>\n")
 
 # regex for matching the prompt
 # this is used to identify the data directory
@@ -530,7 +541,7 @@ if __name__ == '__main__':
                       help="sanitize an existing logfile to the specified outputfile")
     parser.add_option("-d", "--debug", action="store_true", dest="debug", help="enable debug logging")
     (options, args) = parser.parse_args()
-    
+  
     if options.sanitize_file is None:        
         if len(args)==0:
             main(logfilename=None, debug=options.debug)

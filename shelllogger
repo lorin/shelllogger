@@ -8,15 +8,21 @@ parser = OptionParser()
 parser.add_option("-s", "--sanitize", dest="sanitize_file",
 	      help="sanitize an existing logfile to the specified outputfile")
 parser.add_option("-d", "--debug", action="store_true", dest="debug", help="enable debug logging")
+parser.add_option("-v", "--version", action="store_true", dest="version", help="print version number")
 (options, args) = parser.parse_args()
 
-if options.sanitize_file is None:
-    if len(args)==0:
-        source.shelllogger.start_recording(logfilename=None, debug=options.debug)
+
+if(options.version) is None:
+    if options.sanitize_file is None:
+        if len(args)==0:
+            source.shelllogger.start_recording(logfilename=None, debug=options.debug)
+        else:
+            source.shelllogger.start_recording(logfilename=args[0],debug=options.debug)
     else:
-        source.shelllogger.start_recording(logfilename=args[0],debug=options.debug)
+        if len(args)==0:
+            raise ValueError, "Must specify both an input file and an output file when sanitizing"
+        else:
+            sanitize_file(infilename=args[0],outfilename=options.sanitize_file)
 else:
-    if len(args)==0:
-        raise ValueError, "Must specify both an input file and an output file when sanitizing"
-    else:
-        sanitize_file(infilename=args[0],outfilename=options.sanitize_file)
+    print "ShellLogger version:1.0"
+

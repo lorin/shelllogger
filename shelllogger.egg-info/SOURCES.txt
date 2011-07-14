@@ -1,0 +1,14 @@
+README
+setup.cfg
+setup.py
+shelllogger
+sl-validate
+sl-view
+tests.py
+ShellLogger.egg-info/SOURCES.txt
+shelllogger.egg-info/PKG-INFO
+shelllogger.egg-info/SOURCES.txt
+shelllogger.egg-info/dependency_links.txt
+shelllogger.egg-info/top_level.txt
+source/__init__.py
+source/shelllogger.py

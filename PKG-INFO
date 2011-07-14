@@ -1,0 +1,25 @@
+Metadata-Version: 1.0
+Name: ShellLogger
+Version: 1.0
+Summary: Logs shell commands, similar to Unix script program
+Home-page: http://code.google.com/p/shelllogger/
+Author: Lorin Hochstein, Prakashkumar Thiagarajan
+Author-email: lorinh@gmail.com, tprak@seas.upenn.edu
+License: BSD
+Description: 
+
+        Welcome to ShellLogger's documentation!
+        ***************************************************
+
+        ShellLogger captures all user interactions with a shell. 
+        It is intended to be used for software engineering researchers
+        who are interested in inferring programmer behavior from data
+        that can be captured automatically during a programming session.
+        It is similar to the Unix 'script' program, but provides
+        additional features such as XML output, distinguishing user input
+        from system output and tracking the user's current directory. 
+
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Topic :: Utilities
+Classifier: License :: OSI Approved :: BSD License

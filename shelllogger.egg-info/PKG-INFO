@@ -1,0 +1,11 @@
+Metadata-Version: 1.1
+Name: ShellLogger
+Version: 1.0
+Summary: Logs shell commands, similar to Unix script program
+Home-page: http://code.google.com/p/shelllogger/
+Author: Lorin Hochstein, Prakashkumar Thiagarajan
+Author-email: lorinh@gmail.com, tprak@seas.upenn.edu
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Requires: pkg_resources

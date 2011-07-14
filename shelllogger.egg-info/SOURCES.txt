@@ -1,3 +1,5 @@
+MANIFEST.in
+PKG-INFO
 README
 setup.cfg
 setup.py
@@ -6,9 +8,13 @@ sl-validate
 sl-view
 tests.py
 ShellLogger.egg-info/SOURCES.txt
+package/README
+package/package.sh
 shelllogger.egg-info/PKG-INFO
 shelllogger.egg-info/SOURCES.txt
 shelllogger.egg-info/dependency_links.txt
 shelllogger.egg-info/top_level.txt
 source/__init__.py
+source/__init__.pyc
 source/shelllogger.py
+source/shelllogger.pyc

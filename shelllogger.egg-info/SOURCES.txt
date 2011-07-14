@@ -7,7 +7,6 @@ shelllogger
 sl-validate
 sl-view
 tests.py
-ShellLogger.egg-info/SOURCES.txt
 package/README
 package/package.sh
 shelllogger.egg-info/PKG-INFO

@@ -328,12 +328,12 @@ class Logger:
 
         # Handle Shell output
         if shell == True:
-            self.debugfile.write("<shell>" )
+            self.debugfile.write("<shell time=\" " + datetime.datetime.now().strftime("%H:%M:%S ") + "\" >" )
             self.debugfile.write("<![CDATA["+buf+"]]></shell>\n")
 
         # Handle User Input
         else:
-            self.debugfile.write("<user>" )
+            self.debugfile.write("<user time=\" " + datetime.datetime.now().strftime("%H:%M:%S ") + "\" >" )
             self.debugfile.write("<![CDATA["+buf+"]]></user>\n")
 
 # regex for matching the prompt

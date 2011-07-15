@@ -9,7 +9,7 @@ setup(
  author = "Lorin Hochstein, Prakashkumar Thiagarajan",
  author_email = "lorinh@gmail.com, tprak@seas.upenn.edu",
  url = "http://code.google.com/p/shelllogger/",
- packages = ["source"],
+ packages = ["sl"],
  scripts = ['shelllogger','sl-validate','sl-view'],
  description = "Logs shell commands, similar to Unix script program",
 )

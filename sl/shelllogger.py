@@ -20,7 +20,9 @@ tcsh prompt: set prompt='[SL %~]$ '
 If called with the -s option, it will parse <logfilename> as if it was a raw file and
 remove all escape characters, printing to standard out. 
 
-Much code borrowed from
+Much of the terminal-related logic comes from example code posted 
+to comp.lang.python by Donn Cave. Used here with his permission.
+For the original post, see: 
 http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
 """
 

@@ -438,7 +438,6 @@ class WaitingForShellState:
     def input_from_shell(self,buf):
         # Check for the case of no input, just a shell prompt
         m = re_prompt.match(buf)
-        print "BUFFER IS"+buf
         if m is not None:
             # Empty result
             try:
@@ -506,8 +505,6 @@ class ShellOutputState:
         # Check if it's the prompt
         m = re_prompt.match(buf)
         mac = mac_prompt.match(buf)
-        print "OUTPUT BUFFER IS "+buf
-        print m
         if m is not None:
             # It's the prompt!
             self.saw_prompt = True

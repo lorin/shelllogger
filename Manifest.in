@@ -1,0 +1,2 @@
+include shelllogger README
+recursive-include sl *

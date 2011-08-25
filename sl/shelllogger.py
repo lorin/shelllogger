@@ -342,8 +342,7 @@ class Logger:
 # this is used to identify the data directory
 re_prompt = re.compile(r'(.*)^\[SL (.*)\]\$ $', re.MULTILINE | re.DOTALL | re.IGNORECASE)
 mac_prompt = re.compile(re.compile(r'(?:.*)\[SL (.*)\](.*)(\$)?',re.MULTILINE | re.DOTALL | re.IGNORECASE))
-linux_prompt = re.compile(r'(?:.*)\[SL (.*)\]\$')
-
+linux_prompt = re.compile(r'(?:.*)\[SL (.*)\]\$',re.MULTILINE | re.DOTALL | re.IGNORECASE)
 
 def is_enter(buf):
     # Check if buffer consists entirely of \n or \r
@@ -505,6 +504,7 @@ class ShellOutputState:
         # Check if it's the prompt
         m = re_prompt.match(buf)
         mac = mac_prompt.match(buf)
+        linux = linux_prompt.match(buf)
         if m is not None:
             # It's the prompt!
             self.saw_prompt = True
@@ -520,6 +520,9 @@ class ShellOutputState:
                    self.seen_prompt = True
         elif mac is not None:
                self.logger.cwd = os.path.expanduser(mac.group(1))
+               self.logger.write("]]></result>\n</cli-logger-entry>\n\n")
+        elif linux is not None:
+               self.logger.cwd = os.path.expanduser(linux.group(1))
                self.logger.write("]]></result>\n</cli-logger-entry>\n\n")
         else:
             self.write_output_to_log(buf)

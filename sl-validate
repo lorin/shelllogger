@@ -12,24 +12,37 @@ from xml.parsers.expat import ExpatError
 import xml.etree.ElementTree as ET 
 
 
-def main(dirname):
+def check_file(filename):
+    try:
+        ET.parse(filename)
+        print "%s valid" % filename
+    except ExpatError, e:
+        print filename, 
+        print e
+
+def check_directory(dirname):
     print "Directory:", dirname
     for fname in os.listdir(dirname):
          if fname.endswith('.xml'):
-            try:
-                ET.parse(os.path.join(dirname,fname))
-                print "%s valid" % fname
-            except ExpatError, e:
-                print fname, 
-                print e
+            check_file(os.path.join(dirname,fname))
             
 if __name__ == '__main__':
-    usage = "usage: %prog [DIR]"
-    description = "Chceks that files with .xml extension in DIR are valid XML"
+    usage = "usage: %prog [FILE.xml|DIR]"
+    description = "Checks that FILE.xml or files with .xml extension in DIR are valid XML"
     epilog = "If no directory is specified, will use DIR=~/.shelllogger"
     parser = OptionParser(usage=usage, description=description, epilog=epilog)
     (options, args) = parser.parse_args()
     if len(args)>1:
         parser.error("incorrect number of arguments")
-    
-    main(dirname=os.path.expanduser('~/.shelllogger'))
+
+    if len(args)==0:
+        check_directory(os.path.expanduser('~/.shelllogger'))
+    else:
+        pathname = args[0]
+        if os.path.isfile(pathname):
+            check_file(pathname)
+        elif os.path.isdir(pathname):
+            check_directory(pathname)
+        else:
+            print "Path not found: %s" % pathname
+

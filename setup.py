@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
  name = "shelllogger",
- version = "1.0",
+ version = "1.0.1",
  author = "Lorin Hochstein, Prakashkumar Thiagarajan",
  author_email = "lorinh@gmail.com, tprak@seas.upenn.edu",
  url = "http://code.google.com/p/shelllogger/",

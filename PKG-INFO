@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: shelllogger
-Version: 1.0
+Version: 1.0.1
 Summary: Logs shell commands, similar to Unix script program
 Home-page: http://code.google.com/p/shelllogger/
 Author: Lorin Hochstein, Prakashkumar Thiagarajan

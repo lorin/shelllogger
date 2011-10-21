@@ -330,13 +330,11 @@ class Logger:
 
         # Handle Shell output
         if shell == True:
-            self.debugfile.write("<shell time=\" " + datetime.datetime.now().strftime("%H:%M:%S ") + "\" >" )
-            self.debugfile.write("<![CDATA["+buf+"]]></shell>\n")
+            self.debugfile.write("<shell><![CDATA[%s]]></shell>\n" % buf)
 
         # Handle User Input
         else:
-            self.debugfile.write("<user time=\" " + datetime.datetime.now().strftime("%H:%M:%S ") + "\" >" )
-            self.debugfile.write("<![CDATA["+buf+"]]></user>\n")
+            self.debugfile.write("<user><![CDATA[%s]]></user>\n" % buf)
 
 # regex for matching the prompt
 # this is used to identify the data directory

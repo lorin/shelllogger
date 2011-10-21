@@ -542,6 +542,10 @@ class ShellOutputState:
             return self
 
 class ShellOutputNoOutputState(ShellOutputState):
+    """
+
+    TODO: This is a dead state, which is clearly incorrect.
+    """
     def write_output_to_log(self,buf):
         pass
 

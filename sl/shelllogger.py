@@ -99,6 +99,7 @@ def start_recording(logfilename, debug):
     if check_recursive():
         return # this becomes a no-op if we're already in shelllogger
 
+    # Set environment variable to prevent recursive calls
     os.environ[ENV_VAR]='1'
     print "ShellLogger enabled"
 
@@ -109,12 +110,11 @@ def start_recording(logfilename, debug):
     if logfilename is None:
         (logfilename, debugfilename) = default_logfilename(get_log_dir())
 
-    if !debug:
-        debugfilename = False
+    if not debug:
+        debugfilename = None
 
     pid, fd = pty.fork()
     
-    # Python won't return -1, rather will raise exception.
     if is_child(pid):
         run_child_shell() # This won't return
 

@@ -4,17 +4,56 @@ Takes a shelllogger debug file and generates an XML file.
 """
 
 import argparse
+import re
+
+from StringIO import StringIO
+
 import xml.etree.ElementTree as ET 
 
-def main(debugfile):
-    tree = ET.parse(debugfile)
+from sl import shelllogger
 
-    
+def sanitize(buf):
+    # From http://www.webdeveloper.com/forum/showthread.php?t=186004
+    r1 = re.compile('\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]')
+    r2 = re.compile('\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]')
+    r3 = re.compile('[\x03|\x1a]')
+    buf = r1.sub('',buf)
+    buf = r2.sub('', buf)
+    buf = r3.sub('', buf)
+    return buf
 
+
+
+def main(debugfile, xmlfile):
+    with open(debugfile) as f:
+        s = f.read()
+        buf = sanitize(s)
+    tree = ET.parse(StringIO(buf))
+    root = tree.getroot()
+    # TODO: Arguments for logger
+    logger = shelllogger.Logger(xmlfile, None)
+    for node in root.getchildren():
+        buf = node.text
+        if buf is None:
+            buf=''
+        if node.tag=='shell':
+            logger.input_from_shell(buf)
+            print "shell:",
+            if node.text is not None:
+                print node.text
+        elif node.tag=='user':
+            logger.input_from_user(buf)
+            print "user:" ,
+            if node.text is not None:
+                print node.text
+        else:
+            raise ValueError, "Unexpected tag: %s" % node.tag
+    print logger.done()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Generate XML file from debug file")
     parser.add_argument('debugfile', type=str, help="ShellLogger debug file")
+    parser.add_argument('xmlfile', type=str, help="ShellLogger output file with .raw extension")
     args = parser.parse_args()
-    main(args.debugfile)
+    main(args.debugfile, args.xmlfile)
 

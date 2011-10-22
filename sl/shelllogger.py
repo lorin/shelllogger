@@ -304,7 +304,7 @@ class Logger:
         Returns the name of the XML file
         """
         xmlfilename = self.logfilename.replace('.raw','.xml')
-        fout = codecs.open(xmlfilename, encoding="utf-8", mode="w")
+        fout = codec.open(xmlfilename, encoding="utf-8", mode="w")
         for line in codecs.open(self.logfilename,encoding="utf-8"):
             fout.write(sanitize(line))
             

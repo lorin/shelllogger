@@ -38,12 +38,12 @@ import log
 import tty
 import util
 
-
-
-
 BASH_PROMPT = "PS1='[SL \w]$ ' \n"
 TCSH_PROMPT = "set prompt='[SL %~]$ ' \n"
 SHELL_PROMPTS = {'bash':BASH_PROMPT,'tcsh':TCSH_PROMPT}
+
+# We set this environment variable to indicate we're in shelllogger
+ENV_VAR = "ShellLogger"
 
 
 def get_log_dir():
@@ -57,15 +57,18 @@ def get_log_dir():
     else:
         return os.path.expanduser('~/.shelllogger')
 
+def check_recursive():
+    """Check if shelllogger has been called recursively"""
+    return os.environ.has_key(ENV_VAR)
+
+
 def start_recording(logfilename, debug):
 
-    # Check for recursive call
-    env_var = 'ShellLogger'
-    if os.environ.has_key(env_var):
-        # Recursive call, just exit
-        return 
+    # Check for recursive call 
+    if check_recursive():
+        return # this becomes a no-op if we're already in shelllogger
 
-    os.environ[env_var]='1'
+    os.environ[ENV_VAR]='1'
     print "ShellLogger enabled"
 
     if logfilename is None:

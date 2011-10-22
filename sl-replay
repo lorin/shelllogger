@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+"""
+Takes a shelllogger debug file and generates an XML file.
+"""
+
+import argparse
+import xml.etree.ElementTree as ET 
+
+def main(debugfile):
+    tree = ET.parse(debugfile)
+
+    
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Generate XML file from debug file")
+    parser.add_argument('debugfile', type=str, help="ShellLogger debug file")
+    args = parser.parse_args()
+    main(args.debugfile)
+

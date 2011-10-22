@@ -27,8 +27,10 @@ http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
 """
 
 
+import codecs
+import datetime
+import errno
 import fcntl
-import sys
 import os
 import pty
 import re
@@ -36,11 +38,9 @@ import select
 import signal
 import socket
 import struct
+import sys
 import termios
 import time
-import errno
-import codecs
-import datetime
 
 isFirst = True
 
@@ -280,7 +280,8 @@ class Logger:
         self.debugfilename = debugfilename
         self.isLinux = False
         if self.debugfilename is not None:
-            self.debugfile = open(debugfilename, 'w')
+            self.debugfile = codecs.open(debugfilename, encoding="utf-8", mode="w")
+            self.debugfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             self.debugfile.write("<cli-debug>\n")
         else:
             self.debugfile = None

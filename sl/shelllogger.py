@@ -31,6 +31,7 @@ import os
 import pty
 import re
 import select
+import sys
 import time
 
 # Shelllogger-local packages
@@ -113,7 +114,7 @@ def start_recording(logfilename, debug):
     if not debug:
         debugfilename = None
 
-    pid, fd = pty.fork()
+    pid, fd_pty = pty.fork()
     
     if is_child(pid):
         run_child_shell() # This won't return
@@ -123,7 +124,7 @@ def start_recording(logfilename, debug):
     
     input.raw()
 
-    resizer = tty.ChildWindowResizer(fd)
+    resizer = tty.ChildWindowResizer(fd_pty)
     resizer.resize_child_window()
 
     bufsize = 1024
@@ -135,13 +136,13 @@ def start_recording(logfilename, debug):
             print "Warning, shelllogger running in debug mode. All keystrokes will be logged to a plaintext file. Do not type in any passwords during this session!"
 
         # Set the shell prompt properly
-        os.write(fd,SHELL_PROMPTS[util.get_shell()])
+        os.write(fd_pty,SHELL_PROMPTS[util.get_shell()])
 
         while True:
             delay = 1           
             exit = 0
             try:
-                r, w, e = select.select([0, fd], [], [], delay)
+                r_fds, w_fds, e_fds = select.select([0, fd_pty], [], [], delay)
             except select.error, se:
                 # When the user resizes the window, it will generate a signal
                 # that will be handled, which will cause select to be
@@ -150,17 +151,16 @@ def start_recording(logfilename, debug):
                     continue
                 else:
                     raise
-            for File in r:
-                if File == 0:
+            for fd in r_fds:
+                if fd == sys.stdin.fileno():
                     first_user_input = 1
-                    from_user = os.read(0, bufsize)
-                    os.write(fd, from_user)
+                    from_user = os.read(sys.stdin.fileno(), bufsize)
+                    os.write(fd_pty, from_user)
                     logger.input_from_user(from_user)
-                
-                elif File == fd:
+                elif fd == fd_pty:
                     try:
-                        from_shell = os.read(fd, bufsize)
-                        os.write(1, from_shell)
+                        from_shell = os.read(fd_pty, bufsize)
+                        os.write(sys.stdout.fileno(), from_shell)
                         logger.input_from_shell(from_shell)
                         if from_shell=='':
                             exit = 1
@@ -168,7 +168,7 @@ def start_recording(logfilename, debug):
                     # On Linux, os.read throws an OSError
                     # when data is done
                         from_shell = ''
-                        os.write(1, from_shell)
+                        os.write(sys.stdout.fileno(), from_shell)
                         logger.input_from_shell(from_shell)
                         exit = 1
 

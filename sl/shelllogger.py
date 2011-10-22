@@ -61,6 +61,37 @@ def check_recursive():
     """Check if shelllogger has been called recursively"""
     return os.environ.has_key(ENV_VAR)
 
+def default_logfilename(dirname):
+    """Returns (logfilename, debugfilename)
+
+    This will also create the log directory if it does not exist"""
+    try:
+        os.mkdir(dirname)
+        print "Creating %s directory for storing logfile" % dirname
+    except OSError, e:
+        # If it's anything but "File exists",then we're in trouble.
+        # We'll just re-raise the exception for now
+        if e.errno != errno.EEXIST:
+            raise e
+
+    logfilename = os.path.join(dirname,'log.%d.raw' % time.time())
+    debugfilename = os.path.join(dirname,'log.%d.debug' % time.time())
+    return (logfilename, debugfilename)
+
+
+def is_child(pid):
+    """Returns true if it's the child process after a fork"""
+    return pid==0
+
+def run_child_shell():
+    """Run the shell in the child process.
+
+    This function will not return"""
+    try:
+        util.run_shell()
+    finally:
+        # must not return to caller.
+        os._exit(0)
 
 def start_recording(logfilename, debug):
 
@@ -71,32 +102,21 @@ def start_recording(logfilename, debug):
     os.environ[ENV_VAR]='1'
     print "ShellLogger enabled"
 
-    if logfilename is None:
-        dirname = get_log_dir()
-        try:
-            os.mkdir(dirname)
-            print "Creating %s directory for storing logfile" % dirname
-        except OSError, e:
-            # If it's anything but "File exists",then we're in trouble.
-            # We'll just re-raise the exception for now
-            if e.errno != errno.EEXIST:
-                raise e
+    # TODO: Handle the case where debug is true but a logfilename is specified
+    if logfilename is None and debug==True:
+        raise ValueError, "Don't yet support debug mode with specified logfilename"
 
-        logfilename = os.path.join(dirname,'log.%d.raw' % time.time())
-        if debug:
-            debugfilename = os.path.join(dirname,'log.%d.debug' % time.time())
-        else:
-            debugfilename = None
+    if logfilename is None:
+        (logfilename, debugfilename) = default_logfilename(get_log_dir())
+
+    if !debug:
+        debugfilename = False
 
     pid, fd = pty.fork()
     
     # Python won't return -1, rather will raise exception.
-    if pid == 0:    # child process
-        try:
-            util.run_shell()
-        except:
-            # must not return to caller.
-            os._exit(0)
+    if is_child(pid):
+        run_child_shell() # This won't return
 
     # parent process
     input = tty.TTY()
@@ -111,7 +131,7 @@ def start_recording(logfilename, debug):
     try:
         logger = log.Logger(logfilename, debugfilename)
        
-        if debugfilename is not None:
+        if debug:
             print "Warning, shelllogger running in debug mode. All keystrokes will be logged to a plaintext file. Do not type in any passwords during this session!"
 
         # Set the shell prompt properly

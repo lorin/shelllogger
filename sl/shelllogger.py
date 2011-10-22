@@ -44,11 +44,6 @@ import tty
 
 isFirst = True
 
-# Fix for older versions of Python
-try:
-    True
-except NameError:
-    True,False = 1,0
 
 # These are applications that use the terminal in such a way that
 # it is better to not capture their output

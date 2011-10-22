@@ -5,6 +5,14 @@ Utility functions
 import os
 import re
 
+def is_enter(buf):
+    # Check if buffer consists entirely of \n or \r
+    for c in buf:
+        if c!='\n' and c!='\r':
+            return False
+    return True
+
+
 def is_printable(c):
     """
     Returns true if c is a printable character. 
@@ -14,6 +22,20 @@ def is_printable(c):
     
     """
     return ord(c)>=32 or c in ['\r','\n', '\t']
+
+def get_shell():
+  return os.path.basename(os.environ['SHELL'])
+
+def run_shell():
+    """Launch the appropriate shell as a login shell
+
+    It will be either bash or tcsh depending on what the user is currently running.
+    It checks the SHELL variable to figure it out.
+    """
+    shell = get_shell()
+    if shell not in ['bash','tcsh']:
+        raise ValueError, "Unsupported shell (only works with bash and tcsh)"
+    os.execvp(shell,(shell,"-l"))
 
 def sanitize(buf, 
              backspaces=['\x08\x1b[K', '\x08 \x08'], 
@@ -45,18 +67,4 @@ def sanitize(buf,
 
     clean = ''.join([x for x in strip_escapes if is_printable(x)])
     return clean
-
-def get_shell():
-  return os.path.basename(os.environ['SHELL'])
-
-def run_shell():
-    """Launch the appropriate shell as a login shell
-
-    It will be either bash or tcsh depending on what the user is currently running.
-    It checks the SHELL variable to figure it out.
-    """
-    shell = get_shell()
-    if shell not in ['bash','tcsh']:
-        raise ValueError, "Unsupported shell (only works with bash and tcsh)"
-    os.execvp(shell,(shell,"-l"))
 

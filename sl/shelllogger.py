@@ -159,7 +159,3 @@ def start_recording(logfilename, debug):
         raise
     input.restore()
     print "ShellLogger data stored in " + xmlfilename
-
-
-
-

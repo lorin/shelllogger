@@ -30,17 +30,17 @@ http://groups.google.com/group/comp.lang.python/msg/de40b36c6f0c53cc
 import codecs
 import datetime
 import errno
-import fcntl
 import os
 import pty
 import re
 import select
-import signal
 import socket
-import struct
 import sys
-import termios
 import time
+
+# Shelllogger-local packages
+import tty
+
 
 isFirst = True
 
@@ -101,43 +101,6 @@ def sanitize(buf,
     return clean
 
 
-class TTY:
-    def __init__(self):
-        self.iflag, self.oflag, self.cflag, self.lflag, \
-            self.ispeed, self.ospeed, self.cc = termios.tcgetattr(0)
-    def raw(self):
-        # ISIG - passes Ctl-C, Ctl-Z, etc. to the child rather than generating signals
-        raw_lflag = self.lflag & ~(termios.ICANON|termios.ECHO|termios.ISIG)
-        raw_iflag = self.iflag & ~(termios.ICRNL|termios.IXON)
-        raw_cc = self.cc[:]
-        raw_cc[termios.VMIN] = 1
-        raw_cc[termios.VTIME] = 0
-        termios.tcsetattr(0, termios.TCSANOW, [raw_iflag, self.oflag,
-                                               self.cflag, raw_lflag,
-                                               self.ispeed, self.ospeed,
-                                               raw_cc])
-    def restore(self):
-        termios.tcsetattr(0, termios.TCSANOW, [self.iflag, self.oflag,
-                                               self.cflag, self.lflag,
-                                               self.ispeed, self.ospeed,
-                                               self.cc])
-
-class ChildWindowResizer:
-    """Informs the child process that the window has been resized."""
-
-    def __init__(self,child_fd):
-        self.child_fd = child_fd
-        signal.signal(signal.SIGWINCH,self.signal_handler)
-
-    def signal_handler(self,sig,data):
-        """Signal handler that gets installed"""
-        self.resize_child_window()
-
-    def resize_child_window(self):
-        """Tells the child process to resize its window"""
-        s = struct.pack('HHHH', 0, 0, 0, 0)
-        x = fcntl.ioctl(0,termios.TIOCGWINSZ,s)
-        fcntl.ioctl(self.child_fd,termios.TIOCSWINSZ,x)
 
 
 def get_shell():
@@ -204,11 +167,11 @@ def start_recording(logfilename, debug):
             os._exit(0)
 
     # parent process
-    input = TTY()
+    input = tty.TTY()
     
     input.raw()
 
-    resizer = ChildWindowResizer(fd)
+    resizer = tty.ChildWindowResizer(fd)
     resizer.resize_child_window()
 
     bufsize = 1024
@@ -304,7 +267,7 @@ class Logger:
         Returns the name of the XML file
         """
         xmlfilename = self.logfilename.replace('.raw','.xml')
-        fout = codec.open(xmlfilename, encoding="utf-8", mode="w")
+        fout = codecs.open(xmlfilename, encoding="utf-8", mode="w")
         for line in codecs.open(self.logfilename,encoding="utf-8"):
             fout.write(sanitize(line))
             
